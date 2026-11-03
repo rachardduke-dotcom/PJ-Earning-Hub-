@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,30 +7,36 @@
 <title>PJ-EARNING HUB</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
 body{background:#080d0b;color:white}
-header{background:#101b15;padding:20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #214b32}
-.logo{color:#35df83;font-size:22px;font-weight:bold}
-.hero{padding:55px 20px;text-align:center;background:linear-gradient(145deg,#102d1b,#080d0b)}
+header{background:#101b15;padding:20px;display:flex;justify-content:space-between;border-bottom:1px solid #35df83}
+.logo{color:#35df83;font-size:21px;font-weight:bold}
+.hero{text-align:center;padding:55px 20px;background:linear-gradient(145deg,#102d1b,#080d0b)}
 .hero h1{font-size:34px;margin-bottom:15px}
-.hero span{color:#35df83}
-.hero p{color:#c3d0c8;line-height:1.7;margin-bottom:25px}
-button{background:#35df83;color:#06150c;border:none;padding:14px 22px;border-radius:8px;font-weight:bold;cursor:pointer}
+span.green{color:#35df83}
+.hero p{color:#c3d0c8;line-height:1.7;margin-bottom:20px}
+button{background:#35df83;color:#06150c;border:0;padding:13px 18px;border-radius:7px;font-weight:bold;cursor:pointer;margin:5px}
 button:hover{background:#20bd68}
-section{padding:30px 20px}
-h2{margin-bottom:20px;color:#35df83}
-.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
-.card{background:#111c16;padding:22px 12px;border:1px solid #234b32;border-radius:12px;text-align:center}
+button.red{background:#e84b4b;color:white}
+section{padding:25px 18px}
+h2{color:#35df83;margin-bottom:18px}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card,.task,.auth{background:#111c16;border:1px solid #234b32;border-radius:12px;padding:18px;margin-bottom:12px}
+.card{text-align:center}
 .card h3{color:#35df83;margin-bottom:10px}
 .card p{font-size:13px;color:#c4d0c8}
-.auth{background:#101b15;margin:20px;padding:25px;border-radius:12px}
-input{width:100%;padding:14px;margin:8px 0;background:#080d0b;color:white;border:1px solid #31543d;border-radius:7px}
-.auth button{width:100%;margin-top:12px}
-.hidden{display:none}
-#message{margin-top:15px;color:#35df83;text-align:center}
-.task{background:#111c16;border:1px solid #234b32;padding:15px;border-radius:10px;margin:12px 0}
-.task h3{color:#35df83;margin-bottom:8px}
-footer{text-align:center;padding:25px;color:#8a9b90;background:#101b15;font-size:13px}
+.auth{margin:20px;padding:22px}
+input,textarea{width:100%;padding:14px;margin:8px 0;background:#080d0b;color:white;border:1px solid #31543d;border-radius:7px}
+textarea{min-height:90px;resize:vertical}
+.auth button,.full{width:100%}
+.hidden{display:none!important}
+.task h3{color:#35df83;margin-bottom:10px}
+.task p{margin:8px 0;color:#ddd;line-height:1.5}
+#message{color:#35df83;text-align:center;margin:12px}
+.small{font-size:12px;color:#aaa}
+.balance{font-size:25px;color:#35df83;margin:15px 0}
+footer{text-align:center;padding:25px;background:#101b15;color:#888;font-size:13px}
+.adminTitle{color:#ffcf45}
 </style>
 </head>
 
@@ -41,18 +48,19 @@ footer{text-align:center;padding:25px;color:#8a9b90;background:#101b15;font-size
 </header>
 
 <div class="hero">
-<h1>WORK. <span>EARN.</span> GROW.</h1>
-<p>Discover tasks, complete them and submit proof for review.</p>
+<h1>WORK. <span class="green">EARN.</span> GROW.</h1>
+<p>Discover tasks, complete them and earn rewards.</p>
 <button onclick="showAuth('register')">CREATE ACCOUNT</button>
+<button onclick="showAuth('login')">LOGIN</button>
 </div>
 
 <section>
 <h2>Why Choose Us?</h2>
 <div class="cards">
-<div class="card"><h3>📋 Tasks</h3><p>Discover available tasks.</p></div>
-<div class="card"><h3>💰 Rewards</h3><p>See the reward for each task.</p></div>
+<div class="card"><h3>📋 Tasks</h3><p>Discover available jobs.</p></div>
+<div class="card"><h3>💰 Rewards</h3><p>Earn task rewards.</p></div>
 <div class="card"><h3>⚡ Review</h3><p>Submit proof for review.</p></div>
-<div class="card"><h3>🏦 Withdrawals</h3><p>Withdrawal requests will be reviewed.</p></div>
+<div class="card"><h3>🏦 Withdrawals</h3><p>Request withdrawals.</p></div>
 </div>
 </section>
 
@@ -60,37 +68,77 @@ footer{text-align:center;padding:25px;color:#8a9b90;background:#101b15;font-size
 <h2 id="authTitle">Create Account</h2>
 
 <div id="nameBox">
-<input id="fullName" type="text" placeholder="Full Name">
+<input id="fullName" placeholder="Full Name">
 </div>
 
 <input id="email" type="email" placeholder="Email Address">
 <input id="password" type="password" placeholder="Password">
 
-<button id="authButton" onclick="submitAuth()">CREATE ACCOUNT</button>
+<button class="full" id="authButton" onclick="submitAuth()">CREATE ACCOUNT</button>
 
-<p id="switchText" onclick="showAuth(authMode === 'login' ? 'register' : 'login')" style="margin-top:20px;text-align:center;cursor:pointer">
+<p id="switchText" onclick="showAuth('login')" style="text-align:center;margin-top:15px;cursor:pointer">
 Already registered? Login
 </p>
 
 <p id="message"></p>
 </div>
 
+<!-- USER DASHBOARD -->
 <section id="dashboard" class="hidden">
 <h2>Welcome, <span id="welcomeName"></span></h2>
 <p id="accountEmail"></p>
-<p style="margin-top:12px">Displayed balance: ₦<span id="balance">0</span></p>
-<button onclick="loadTasks()" style="margin-top:15px">REFRESH TASKS</button>
+
+<div class="balance">₦<span id="balance">0</span></div>
+<p class="small">Your account balance</p>
+
+<h2 style="margin-top:25px">Available Tasks</h2>
 <div id="taskList"></div>
-<button onclick="logout()" style="margin-top:20px">LOG OUT</button>
+
+<h2>My Submissions</h2>
+<div id="mySubmissions"></div>
+
+<button onclick="loadTasks()">REFRESH TASKS</button>
+<button onclick="logout()" class="red">LOG OUT</button>
+</section>
+
+<!-- ADMIN DASHBOARD -->
+<section id="adminDashboard" class="hidden">
+
+<h2 class="adminTitle">👑 ADMIN DASHBOARD</h2>
+<p id="adminEmail"></p>
+
+<div class="card">
+<h3>POST A NEW TASK</h3>
+<input id="taskTitle" placeholder="Task Title">
+<textarea id="taskDescription" placeholder="Task Description / Instructions"></textarea>
+<input id="taskReward" type="number" min="1" placeholder="Reward in Naira">
+
+<button class="full" onclick="postTask()">PUBLISH TASK</button>
+<p id="postMessage"></p>
+</div>
+
+<h2>Manage Posted Tasks</h2>
+<div id="adminTasks"></div>
+
+<h2>Pending Submissions</h2>
+<div id="adminSubmissions"></div>
+
+<button onclick="loadAdminData()">REFRESH DATA</button>
+<button onclick="logout()" class="red">LOG OUT</button>
+
 </section>
 
 <footer>
 PJ-EARNING HUB © 2026<br>
-Work • Earn • Grow
+WORK • EARN • GROW
+<br><br>
+<span onclick="showAuth('login')" style="cursor:pointer">Staff Login</span>
 </footer>
 
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+
+import {initializeApp}
+from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
 
 import {
 getAuth,
@@ -107,8 +155,13 @@ setDoc,
 getDoc,
 collection,
 getDocs,
+addDoc,
+deleteDoc,
+updateDoc,
 query,
-where
+where,
+serverTimestamp,
+runTransaction
 } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -121,46 +174,54 @@ appId: "1:470981481788:web:c1eeb9a0a2844d8804ba39",
 measurementId: "G-TL488P4PES"
 };
 
+const ADMIN_UID = "FDTfk3CWHUcccM6LEeVbFUG7MRx1";
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
 let authMode = "register";
 
+const $ = id => document.getElementById(id);
+
+function showMessage(message){
+$("message").textContent = message;
+}
+
 window.showAuth = function(mode){
 authMode = mode;
+$("auth").classList.remove("hidden");
 
-document.getElementById("auth").classList.remove("hidden");
-
-document.getElementById("authTitle").textContent =
+$("authTitle").textContent =
 mode === "login" ? "Login" : "Create Account";
 
-document.getElementById("authButton").textContent =
+$("authButton").textContent =
 mode === "login" ? "LOGIN" : "CREATE ACCOUNT";
 
-document.getElementById("nameBox").classList.toggle("hidden",mode === "login");
+$("nameBox").classList.toggle("hidden",mode === "login");
 
-document.getElementById("switchText").textContent =
+$("switchText").textContent =
 mode === "login" ? "Need an account? Register" : "Already registered? Login";
 
-document.getElementById("message").textContent = "";
+$("switchText").onclick = () =>
+showAuth(mode === "login" ? "register" : "login");
 
-document.getElementById("auth").scrollIntoView({behavior:"smooth"});
+showMessage("");
+$("auth").scrollIntoView({behavior:"smooth"});
 };
 
 window.submitAuth = async function(){
 
-const name = document.getElementById("fullName").value.trim();
-const email = document.getElementById("email").value.trim();
-const password = document.getElementById("password").value;
-const message = document.getElementById("message");
+const name = $("fullName").value.trim();
+const email = $("email").value.trim();
+const password = $("password").value;
 
 if(!email || !password || (authMode === "register" && !name)){
-message.textContent = "Please fill in all required fields.";
+showMessage("Please fill in all required fields.");
 return;
 }
 
-message.textContent = "Please wait...";
+showMessage("Please wait...");
 
 try{
 
@@ -169,11 +230,11 @@ if(authMode === "register"){
 const result = await createUserWithEmailAndPassword(auth,email,password);
 
 await setDoc(doc(db,"users",result.user.uid),{
-name:name,
-email:email,
+name,
+email,
 balance:0,
 status:"active",
-createdAt:new Date()
+createdAt:serverTimestamp()
 });
 
 }else{
@@ -183,109 +244,412 @@ await signInWithEmailAndPassword(auth,email,password);
 }
 
 }catch(error){
-message.textContent = error.message;
+showMessage(error.message);
 }
 
 };
 
-onAuthStateChanged(auth,async(user)=>{
+// AUTHENTICATION
 
-const dashboard = document.getElementById("dashboard");
+onAuthStateChanged(auth,async user=>{
 
-if(user){
+$("auth").classList.add("hidden");
+$("dashboard").classList.add("hidden");
+$("adminDashboard").classList.add("hidden");
 
-document.getElementById("auth").classList.add("hidden");
-dashboard.classList.remove("hidden");
+if(!user)return;
 
-document.getElementById("accountEmail").textContent = user.email;
+if(user.uid === ADMIN_UID){
+
+$("adminDashboard").classList.remove("hidden");
+$("adminEmail").textContent = user.email;
+
+await loadAdminData();
+
+}else{
+
+$("dashboard").classList.remove("hidden");
+$("accountEmail").textContent = user.email;
 
 try{
 
 const userDoc = await getDoc(doc(db,"users",user.uid));
 
-if(userDoc.exists()){
+if(!userDoc.exists()){
+alert("User account record not found.");
+return;
+}
 
 const data = userDoc.data();
 
-document.getElementById("welcomeName").textContent = data.name || "User";
+$("welcomeName").textContent = data.name || "User";
+$("balance").textContent = data.balance || 0;
 
-document.getElementById("balance").textContent = data.balance || 0;
-
-}
-
-loadTasks();
+await loadTasks();
+await loadMySubmissions();
 
 }catch(error){
-
-alert("Could not load your account: " + error.message);
-
+alert("Account loading error: " + error.message);
 }
-
-}else{
-
-dashboard.classList.add("hidden");
 
 }
 
 });
 
+// USER TASKS
+
 window.loadTasks = async function(){
 
-const list = document.getElementById("taskList");
-
-list.innerHTML = "<p>Loading tasks...</p>";
+const list = $("taskList");
+list.innerHTML = "Loading tasks...";
 
 try{
 
-const taskQuery = query(
-collection(db,"tasks"),
-where("status","==","active")
+const result = await getDocs(
+query(collection(db,"tasks"),where("status","==","active"))
 );
 
-const result = await getDocs(taskQuery);
-
-list.innerHTML = "<h2 style='margin-top:25px'>Available Tasks</h2>";
+list.innerHTML = "";
 
 if(result.empty){
-
-list.innerHTML += "<p>No active tasks yet.</p>";
+list.textContent = "No active tasks yet.";
 return;
-
 }
 
 result.forEach(item=>{
 
 const task = item.data();
-
 const card = document.createElement("div");
 card.className = "task";
 
 const title = document.createElement("h3");
-title.textContent = task.title || "Task";
+title.textContent = task.title;
 
 const description = document.createElement("p");
-description.textContent = task.description || "";
+description.textContent = task.description;
 
 const reward = document.createElement("p");
-reward.textContent = "Reward: ₦" + (task.reward || 0);
+reward.textContent = "Reward: ₦" + task.reward;
 
-card.append(title,description,reward);
+const proof = document.createElement("textarea");
+proof.placeholder = "Enter your task proof or proof link";
+
+const submit = document.createElement("button");
+submit.textContent = "SUBMIT TASK";
+submit.className = "full";
+
+submit.onclick = async()=>{
+
+if(!proof.value.trim()){
+alert("Please enter your proof.");
+return;
+}
+
+submit.disabled = true;
+
+try{
+
+await addDoc(collection(db,"submissions"),{
+userId:auth.currentUser.uid,
+taskId:item.id,
+taskTitle:task.title,
+proof:proof.value.trim(),
+status:"pending",
+createdAt:serverTimestamp()
+});
+
+alert("Task submitted successfully!");
+proof.value = "";
+await loadMySubmissions();
+
+}catch(error){
+alert(error.message);
+}finally{
+submit.disabled = false;
+}
+
+};
+
+card.append(title,description,reward,proof,submit);
 list.appendChild(card);
 
 });
 
 }catch(error){
+list.textContent = error.message;
+}
 
-list.textContent = "Could not load tasks. Check your Firestore setup.";
+};
+
+// USER SUBMISSIONS
+
+window.loadMySubmissions = async function(){
+
+const list = $("mySubmissions");
+list.innerHTML = "Loading...";
+
+try{
+
+const result = await getDocs(
+query(
+collection(db,"submissions"),
+where("userId","==",auth.currentUser.uid)
+)
+);
+
+list.innerHTML = "";
+
+if(result.empty){
+list.textContent = "No submissions yet.";
+return;
+}
+
+result.forEach(item=>{
+
+const data = item.data();
+const card = document.createElement("div");
+card.className = "task";
+
+const title = document.createElement("h3");
+title.textContent = data.taskTitle;
+
+const status = document.createElement("p");
+status.textContent = "Status: " + data.status.toUpperCase();
+
+card.append(title,status);
+list.appendChild(card);
+
+});
+
+}catch(error){
+list.textContent = error.message;
+}
+
+};
+
+// ADMIN: POST TASK
+
+window.postTask = async function(){
+
+if(auth.currentUser?.uid !== ADMIN_UID)return;
+
+const title = $("taskTitle").value.trim();
+const description = $("taskDescription").value.trim();
+const reward = Number($("taskReward").value);
+
+if(!title || !description || !Number.isFinite(reward) || reward <= 0){
+$("postMessage").textContent = "Fill all fields correctly.";
+return;
+}
+
+try{
+
+await addDoc(collection(db,"tasks"),{
+title,
+description,
+reward,
+status:"active",
+createdAt:serverTimestamp()
+});
+
+$("taskTitle").value = "";
+$("taskDescription").value = "";
+$("taskReward").value = "";
+
+$("postMessage").textContent = "Task published successfully!";
+
+await loadAdminData();
+
+}catch(error){
+$("postMessage").textContent = error.message;
+}
+
+};
+
+// ADMIN DATA
+
+window.loadAdminData = async function(){
+
+if(auth.currentUser?.uid !== ADMIN_UID)return;
+
+const tasks = $("adminTasks");
+const submissions = $("adminSubmissions");
+
+tasks.innerHTML = "Loading...";
+submissions.innerHTML = "Loading...";
+
+try{
+
+const taskResult = await getDocs(collection(db,"tasks"));
+tasks.innerHTML = "";
+
+if(taskResult.empty){
+tasks.textContent = "No jobs posted.";
+}
+
+taskResult.forEach(item=>{
+
+const data = item.data();
+const card = document.createElement("div");
+card.className = "task";
+
+const title = document.createElement("h3");
+title.textContent = data.title;
+
+const details = document.createElement("p");
+details.textContent = "Reward: ₦" + data.reward + " | " + data.status;
+
+const remove = document.createElement("button");
+remove.textContent = "DELETE TASK";
+remove.className = "red";
+
+remove.onclick = async()=>{
+
+if(!confirm("Delete this task?"))return;
+
+try{
+await deleteDoc(doc(db,"tasks",item.id));
+await loadAdminData();
+}catch(error){
+alert(error.message);
+}
+
+};
+
+card.append(title,details,remove);
+tasks.appendChild(card);
+
+});
+
+const submissionResult = await getDocs(
+query(collection(db,"submissions"),where("status","==","pending"))
+);
+
+submissions.innerHTML = "";
+
+if(submissionResult.empty){
+submissions.textContent = "No pending submissions.";
+}
+
+submissionResult.forEach(item=>{
+
+const data = item.data();
+const card = document.createElement("div");
+card.className = "task";
+
+const title = document.createElement("h3");
+title.textContent = data.taskTitle;
+
+const proof = document.createElement("p");
+proof.textContent = "Proof: " + data.proof;
+
+const uid = document.createElement("p");
+uid.textContent = "User ID: " + data.userId;
+
+const approve = document.createElement("button");
+approve.textContent = "APPROVE & PAY";
+
+const reject = document.createElement("button");
+reject.textContent = "REJECT";
+reject.className = "red";
+
+approve.onclick = async()=>{
+
+if(!confirm("Approve this task and credit the user?"))return;
+
+approve.disabled = true;
+
+try{
+
+const submissionRef = doc(db,"submissions",item.id);
+const taskRef = doc(db,"tasks",data.taskId);
+const userRef = doc(db,"users",data.userId);
+
+await runTransaction(db,async transaction=>{
+
+const submissionDoc = await transaction.get(submissionRef);
+const taskDoc = await transaction.get(taskRef);
+const userDoc = await transaction.get(userRef);
+
+if(!submissionDoc.exists() ||
+submissionDoc.data().status !== "pending"){
+throw new Error("Submission already reviewed.");
+}
+
+if(!taskDoc.exists() || !userDoc.exists()){
+throw new Error("Task or user account not found.");
+}
+
+const reward = Number(taskDoc.data().reward);
+const oldBalance = Number(userDoc.data().balance || 0);
+
+if(!Number.isFinite(reward) || reward <= 0){
+throw new Error("Invalid task reward.");
+}
+
+transaction.update(userRef,{
+balance:oldBalance + reward
+});
+
+transaction.update(submissionRef,{
+status:"approved",
+reviewedAt:serverTimestamp(),
+approvedReward:reward
+});
+
+});
+
+alert("Approved! User balance updated.");
+await loadAdminData();
+
+}catch(error){
+alert(error.message);
+}finally{
+approve.disabled = false;
+}
+
+};
+
+reject.onclick = async()=>{
+
+if(!confirm("Reject this submission?"))return;
+
+try{
+
+await updateDoc(doc(db,"submissions",item.id),{
+status:"rejected",
+reviewedAt:serverTimestamp()
+});
+
+await loadAdminData();
+
+}catch(error){
+alert(error.message);
+}
+
+};
+
+card.append(title,proof,uid,approve,reject);
+submissions.appendChild(card);
+
+});
+
+}catch(error){
+
+tasks.textContent = error.message;
+submissions.textContent = error.message;
 
 }
 
 };
+
+// LOGOUT
 
 window.logout = async function(){
 await signOut(auth);
 };
 
 </script>
+
 </body>
 </html>
