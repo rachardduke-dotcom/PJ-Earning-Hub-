@@ -1,1 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PJ-EARNING HUB</title>
 
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#080d0b;color:white}
+header{background:#101b15;padding:20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #214b32}
+.logo{color:#35df83;font-size:22px;font-weight:bold}
+.hero{padding:55px 20px;text-align:center;background:linear-gradient(145deg,#102d1b,#080d0b)}
+.hero h1{font-size:34px;margin-bottom:15px}
+.hero span{color:#35df83}
+.hero p{color:#c3d0c8;line-height:1.7;margin-bottom:25px}
+button{background:#35df83;color:#06150c;border:none;padding:14px 22px;border-radius:8px;font-weight:bold;cursor:pointer}
+button:hover{background:#20bd68}
+section{padding:30px 20px}
+h2{margin-bottom:20px;color:#35df83}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+.card{background:#111c16;padding:22px 12px;border:1px solid #234b32;border-radius:12px;text-align:center}
+.card h3{color:#35df83;margin-bottom:10px}
+.card p{font-size:13px;color:#c4d0c8}
+.auth{background:#101b15;margin:20px;padding:25px;border-radius:12px}
+input{width:100%;padding:14px;margin:8px 0;background:#080d0b;color:white;border:1px solid #31543d;border-radius:7px}
+.auth button{width:100%;margin-top:12px}
+.hidden{display:none}
+#message{margin-top:15px;color:#35df83;text-align:center}
+.task{background:#111c16;border:1px solid #234b32;padding:15px;border-radius:10px;margin:12px 0}
+.task h3{color:#35df83;margin-bottom:8px}
+footer{text-align:center;padding:25px;color:#8a9b90;background:#101b15;font-size:13px}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">PJ-EARNING HUB</div>
+<div>☰</div>
+</header>
+
+<div class="hero">
+<h1>WORK. <span>EARN.</span> GROW.</h1>
+<p>Discover tasks, complete them and submit proof for review.</p>
+<button onclick="showAuth('register')">CREATE ACCOUNT</button>
+</div>
+
+<section>
+<h2>Why Choose Us?</h2>
+<div class="cards">
+<div class="card"><h3>📋 Tasks</h3><p>Discover available tasks.</p></div>
+<div class="card"><h3>💰 Rewards</h3><p>See the reward for each task.</p></div>
+<div class="card"><h3>⚡ Review</h3><p>Submit proof for review.</p></div>
+<div class="card"><h3>🏦 Withdrawals</h3><p>Withdrawal requests will be reviewed.</p></div>
+</div>
+</section>
+
+<div class="auth hidden" id="auth">
+<h2 id="authTitle">Create Account</h2>
+
+<div id="nameBox">
+<input id="fullName" type="text" placeholder="Full Name">
+</div>
+
+<input id="email" type="email" placeholder="Email Address">
+<input id="password" type="password" placeholder="Password">
+
+<button id="authButton" onclick="submitAuth()">CREATE ACCOUNT</button>
+
+<p id="switchText" onclick="showAuth(authMode === 'login' ? 'register' : 'login')" style="margin-top:20px;text-align:center;cursor:pointer">
+Already registered? Login
+</p>
+
+<p id="message"></p>
+</div>
+
+<section id="dashboard" class="hidden">
+<h2>Welcome, <span id="welcomeName"></span></h2>
+<p id="accountEmail"></p>
+<p style="margin-top:12px">Displayed balance: ₦<span id="balance">0</span></p>
+<button onclick="loadTasks()" style="margin-top:15px">REFRESH TASKS</button>
+<div id="taskList"></div>
+<button onclick="logout()" style="margin-top:20px">LOG OUT</button>
+</section>
+
+<footer>
+PJ-EARNING HUB © 2026<br>
+Work • Earn • Grow
+</footer>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+
+import {
+getAuth,
+createUserWithEmailAndPassword,
+signInWithEmailAndPassword,
+onAuthStateChanged,
+signOut
+} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+
+import {
+getFirestore,
+doc,
+setDoc,
+getDoc,
+collection,
+getDocs,
+query,
+where
+} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyC6O2RSO27tCfq4F8qkyijAdgsIqZrlmVk",
+authDomain: "pj-earning-hub.firebaseapp.com",
+projectId: "pj-earning-hub",
+storageBucket: "pj-earning-hub.firebasestorage.app",
+messagingSenderId: "470981481788",
+appId: "1:470981481788:web:c1eeb9a0a2844d8804ba39",
+measurementId: "G-TL488P4PES"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let authMode = "register";
+
+window.showAuth = function(mode){
+authMode = mode;
+
+document.getElementById("auth").classList.remove("hidden");
+
+document.getElementById("authTitle").textContent =
+mode === "login" ? "Login" : "Create Account";
+
+document.getElementById("authButton").textContent =
+mode === "login" ? "LOGIN" : "CREATE ACCOUNT";
+
+document.getElementById("nameBox").classList.toggle("hidden",mode === "login");
+
+document.getElementById("switchText").textContent =
+mode === "login" ? "Need an account? Register" : "Already registered? Login";
+
+document.getElementById("message").textContent = "";
+
+document.getElementById("auth").scrollIntoView({behavior:"smooth"});
+};
+
+window.submitAuth = async function(){
+
+const name = document.getElementById("fullName").value.trim();
+const email = document.getElementById("email").value.trim();
+const password = document.getElementById("password").value;
+const message = document.getElementById("message");
+
+if(!email || !password || (authMode === "register" && !name)){
+message.textContent = "Please fill in all required fields.";
+return;
+}
+
+message.textContent = "Please wait...";
+
+try{
+
+if(authMode === "register"){
+
+const result = await createUserWithEmailAndPassword(auth,email,password);
+
+await setDoc(doc(db,"users",result.user.uid),{
+name:name,
+email:email,
+balance:0,
+status:"active",
+createdAt:new Date()
+});
+
+}else{
+
+await signInWithEmailAndPassword(auth,email,password);
+
+}
+
+}catch(error){
+message.textContent = error.message;
+}
+
+};
+
+onAuthStateChanged(auth,async(user)=>{
+
+const dashboard = document.getElementById("dashboard");
+
+if(user){
+
+document.getElementById("auth").classList.add("hidden");
+dashboard.classList.remove("hidden");
+
+document.getElementById("accountEmail").textContent = user.email;
+
+try{
+
+const userDoc = await getDoc(doc(db,"users",user.uid));
+
+if(userDoc.exists()){
+
+const data = userDoc.data();
+
+document.getElementById("welcomeName").textContent = data.name || "User";
+
+document.getElementById("balance").textContent = data.balance || 0;
+
+}
+
+loadTasks();
+
+}catch(error){
+
+alert("Could not load your account: " + error.message);
+
+}
+
+}else{
+
+dashboard.classList.add("hidden");
+
+}
+
+});
+
+window.loadTasks = async function(){
+
+const list = document.getElementById("taskList");
+
+list.innerHTML = "<p>Loading tasks...</p>";
+
+try{
+
+const taskQuery = query(
+collection(db,"tasks"),
+where("status","==","active")
+);
+
+const result = await getDocs(taskQuery);
+
+list.innerHTML = "<h2 style='margin-top:25px'>Available Tasks</h2>";
+
+if(result.empty){
+
+list.innerHTML += "<p>No active tasks yet.</p>";
+return;
+
+}
+
+result.forEach(item=>{
+
+const task = item.data();
+
+const card = document.createElement("div");
+card.className = "task";
+
+const title = document.createElement("h3");
+title.textContent = task.title || "Task";
+
+const description = document.createElement("p");
+description.textContent = task.description || "";
+
+const reward = document.createElement("p");
+reward.textContent = "Reward: ₦" + (task.reward || 0);
+
+card.append(title,description,reward);
+list.appendChild(card);
+
+});
+
+}catch(error){
+
+list.textContent = "Could not load tasks. Check your Firestore setup.";
+
+}
+
+};
+
+window.logout = async function(){
+await signOut(auth);
+};
+
+</script>
+</body>
+</html>
