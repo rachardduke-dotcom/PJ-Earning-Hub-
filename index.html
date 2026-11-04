@@ -69,13 +69,12 @@ h3{color:#20c978}
 
 <div class="card">
 <h3 id="welcome">Dashboard</h3>
-<p>Demo points: <strong class="green" id="balance">0</strong></p>
-<p class="small">Demo points are for tracking activity only. They have no cash value.</p>
+<p>Balance: <strong class="green" id="balance">0</strong></p>
 </div>
 
 <div class="nav">
 <button onclick="page('tasks')">Tasks</button>
-<button onclick="page('deposit')">Support</button>
+<button onclick="page('deposit')">Deposit</button>
 <button onclick="page('profile')">Profile</button>
 <button onclick="page('history')">History</button>
 <button id="adminButton" class="hidden" onclick="page('admin')">Admin</button>
@@ -87,14 +86,14 @@ h3{color:#20c978}
 <div id="taskList">Loading tasks...</div>
 </div>
 
-<!-- SUPPORT PAGE -->
+<!-- DEPOSIT PAGE -->
 
-<div id="depositPage" class="card hidden">
+<div id="DepositPage" class="card hidden">
 
-<h3>Support PJ-EARNING HUB ❤️</h3>
+<h3> Deposit</h3>
 
 <div class="notice">
-Supporting PJ-EARNING HUB is completely optional. It does not unlock tasks or guarantee earnings.
+Please Re-check the details before making payments so as to avoid complicated issues.
 </div>
 
 <h3>Payment Details</h3>
@@ -102,40 +101,40 @@ Supporting PJ-EARNING HUB is completely optional. It does not unlock tasks or gu
 <p>Bank: <strong>OPay</strong></p>
 
 <p>Account Number:</p>
-<h2 class="green" id="supportAccount">7019538611</h2>
+<h2 class="green" id="DepositAccount">7019538611</h2>
 
 <p>Account Name: <strong>Praise Jah Ikenna Ekeh</strong></p>
 
-<button onclick="copySupportAccount()">Copy Account Number</button>
+<button onclick="copyDepositAccount()">Copy Account Number</button>
 
 <hr>
 
 <h3>Have You Paid?</h3>
 
-<button onclick="showSupportForm()">I've Paid</button>
+<button onclick="DepositForm()">I've Paid</button>
 
-<div id="supportForm" class="hidden">
+<div id="DepositForm" class="hidden">
 
 <h3>Upload Payment Screenshot</h3>
 
-<input id="supportAmount" type="number" min="1" placeholder="Amount sent (₦)">
+<input id="DepositAmount" type="number" min="1" placeholder="Amount sent (₦)">
 
 <label class="small">Select payment screenshot from your gallery</label>
 
-<input id="supportScreenshot" type="file" accept="image/*">
+<input id="DepositScreenshot" type="file" accept="image/*">
 
-<button id="supportSubmitButton" onclick="submitSupport()">
+<button id="DepositSubmitButton" onclick="submitDeposit()">
 Submit Payment Proof
 </button>
 
-<p id="supportMessage" class="small"></p>
+<p id="DepositMessage" class="small"></p>
 
 </div>
 
 <hr>
 
-<h3>My Support History</h3>
-<div id="supportHistory">No support payments yet.</div>
+<h3>My Deposit History</h3>
+<div id="DepositHistory">No support payments yet.</div>
 
 </div>
 
@@ -165,7 +164,7 @@ Submit Payment Proof
 <h3>Post New Task</h3>
 <input id="newTaskTitle" placeholder="Task title">
 <textarea id="newTaskDescription" placeholder="Task instructions"></textarea>
-<input id="newTaskReward" type="number" placeholder="Demo points reward">
+<input id="newTaskReward" type="number" placeholder="reward">
 <button onclick="postTask()">Publish task</button>
 
 <h3>Manage Tasks</h3>
@@ -345,7 +344,7 @@ async function saveProfile(){
 
 function page(name){
 
- ["tasks","deposit","profile","history","admin"].forEach(p=>{
+ ["tasks","Deposit","profile","history","admin"].forEach(p=>{
   el(p+"Page").classList.add("hidden");
  });
 
@@ -355,7 +354,7 @@ function page(name){
 
  if(name==="tasks")loadTasks();
  if(name==="history")loadHistory();
- if(name==="deposit")loadSupportHistory();
+ if(name==="Deposit")loadDepositHistory();
  if(name==="admin")loadAdmin();
 }
 
