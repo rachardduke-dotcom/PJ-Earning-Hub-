@@ -74,7 +74,7 @@ h3{color:#20c978}
 
 <div class="nav">
 <button onclick="page('tasks')">Tasks</button>
-<button onclick="page('deposit')">Deposit</button>
+<button onclick="page('deposit')">ooenDeposit</button>
 <button onclick="page('profile')">Profile</button>
 <button onclick="page('history')">History</button>
 <button id="adminButton" class="hidden" onclick="page('admin')">Admin</button>
@@ -111,7 +111,7 @@ Please Re-check the details before making payments so as to avoid complicated is
 
 <h3>Have You Paid?</h3>
 
-<button onclick="DepositForm()">I've Paid</button>
+<button onclick="showDepositForm()">I've Paid</button>
 
 <div id="DepositForm" class="hidden">
 
@@ -188,7 +188,13 @@ Submit Payment Proof
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 
 <script>
+function openDeposit(){
+    document.querySelectorAll(".card").forEach(page=>{
+        page.classList.add("hidden");
+    });
 
+    document.getElementById("DepositPage").classList.remove("hidden");
+}
 const firebaseConfig = {
  apiKey: "AIzaSyC6O2RSO27tCfq4F8qkyijAdgsIqZrlmVk",
  authDomain: "pj-earning-hub.firebaseapp.com",
