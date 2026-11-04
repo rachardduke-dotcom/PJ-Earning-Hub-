@@ -5,651 +5,459 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PJ-EARNING HUB</title>
-
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{background:#080d0b;color:white}
-header{background:#101b15;padding:20px;display:flex;justify-content:space-between;border-bottom:1px solid #35df83}
-.logo{color:#35df83;font-size:21px;font-weight:bold}
-.hero{text-align:center;padding:55px 20px;background:linear-gradient(145deg,#102d1b,#080d0b)}
-.hero h1{font-size:34px;margin-bottom:15px}
-span.green{color:#35df83}
-.hero p{color:#c3d0c8;line-height:1.7;margin-bottom:20px}
-button{background:#35df83;color:#06150c;border:0;padding:13px 18px;border-radius:7px;font-weight:bold;cursor:pointer;margin:5px}
-button:hover{background:#20bd68}
-button.red{background:#e84b4b;color:white}
-section{padding:25px 18px}
-h2{color:#35df83;margin-bottom:18px}
-.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.card,.task,.auth{background:#111c16;border:1px solid #234b32;border-radius:12px;padding:18px;margin-bottom:12px}
-.card{text-align:center}
-.card h3{color:#35df83;margin-bottom:10px}
-.card p{font-size:13px;color:#c4d0c8}
-.auth{margin:20px;padding:22px}
-input,textarea{width:100%;padding:14px;margin:8px 0;background:#080d0b;color:white;border:1px solid #31543d;border-radius:7px}
-textarea{min-height:90px;resize:vertical}
-.auth button,.full{width:100%}
-.hidden{display:none!important}
-.task h3{color:#35df83;margin-bottom:10px}
-.task p{margin:8px 0;color:#ddd;line-height:1.5}
-#message{color:#35df83;text-align:center;margin:12px}
-.small{font-size:12px;color:#aaa}
-.balance{font-size:25px;color:#35df83;margin:15px 0}
-footer{text-align:center;padding:25px;background:#101b15;color:#888;font-size:13px}
-.adminTitle{color:#ffcf45}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#07110d;color:white}
+header{background:#10251b;padding:18px;text-align:center;border-bottom:2px solid #20c978}
+header h2{margin:0;color:#20c978}
+main{max-width:650px;margin:auto;padding:15px}
+.card{background:#10251b;padding:17px;border-radius:13px;margin:13px 0;border:1px solid #244d38}
+input,textarea,button{width:100%;padding:13px;margin:7px 0;border-radius:8px;border:0;font-size:15px}
+input,textarea{background:#eaf3ed;color:#111}
+button{background:#20c978;color:#06140c;font-weight:bold;cursor:pointer}
+button.secondary{background:#263b30;color:white}
+button.danger{background:#b83232;color:white}
+button:disabled{opacity:.5}
+.small{font-size:13px;color:#b9c9bf}
+.green{color:#20c978}
+.hidden{display:none}
+.nav{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.nav button{font-size:12px;padding:11px 4px}
+.item{background:#1a3024;padding:12px;border-radius:9px;margin:9px 0}
+h3{color:#20c978}
 </style>
 </head>
-
 <body>
-
 <header>
-<div class="logo">PJ-EARNING HUB</div>
-<div>☰</div>
+<h2>PJ-EARNING HUB</h2>
+<p class="small">Learn • Complete Tasks • Earn Demo Points</p>
 </header>
 
-<div class="hero">
-<h1>WORK. <span class="green">EARN.</span> GROW.</h1>
-<p>Discover tasks, complete them and earn rewards.</p>
-<button onclick="showAuth('register')">CREATE ACCOUNT</button>
-<button onclick="showAuth('login')">LOGIN</button>
-</div>
-
-<section>
-<h2>Why Choose Us?</h2>
-<div class="cards">
-<div class="card"><h3>📋 Tasks</h3><p>Discover available jobs.</p></div>
-<div class="card"><h3>💰 Rewards</h3><p>Earn task rewards.</p></div>
-<div class="card"><h3>⚡ Review</h3><p>Submit proof for review.</p></div>
-<div class="card"><h3>🏦 Withdrawals</h3><p>Request withdrawals.</p></div>
-</div>
-</section>
-
-<div class="auth hidden" id="auth">
-<h2 id="authTitle">Create Account</h2>
-
-<div id="nameBox">
-<input id="fullName" placeholder="Full Name">
-</div>
-
-<input id="email" type="email" placeholder="Email Address">
-<input id="password" type="password" placeholder="Password">
-
-<button class="full" id="authButton" onclick="submitAuth()">CREATE ACCOUNT</button>
-
-<p id="switchText" onclick="showAuth('login')" style="text-align:center;margin-top:15px;cursor:pointer">
-Already registered? Login
-</p>
-
-<p id="message"></p>
-</div>
-
-<!-- USER DASHBOARD -->
-<section id="dashboard" class="hidden">
-<h2>Welcome, <span id="welcomeName"></span></h2>
-<p id="accountEmail"></p>
-
-<div class="balance">₦<span id="balance">0</span></div>
-<p class="small">Your account balance</p>
-
-<h2 style="margin-top:25px">Available Tasks</h2>
-<div id="taskList"></div>
-
-<h2>My Submissions</h2>
-<div id="mySubmissions"></div>
-
-<button onclick="loadTasks()">REFRESH TASKS</button>
-<button onclick="logout()" class="red">LOG OUT</button>
-</section>
-
-<!-- ADMIN DASHBOARD -->
-<section id="adminDashboard" class="hidden">
-
-<h2 class="adminTitle">👑 ADMIN DASHBOARD</h2>
-<p id="adminEmail"></p>
-
+<main>
+<section id="auth">
 <div class="card">
-<h3>POST A NEW TASK</h3>
-<input id="taskTitle" placeholder="Task Title">
-<textarea id="taskDescription" placeholder="Task Description / Instructions"></textarea>
-<input id="taskReward" type="number" min="1" placeholder="Reward in Naira">
-
-<button class="full" onclick="postTask()">PUBLISH TASK</button>
-<p id="postMessage"></p>
+<h3>Welcome</h3>
+<div id="loginBox">
+<h3>Login</h3>
+<input id="loginEmail" type="email" placeholder="Email address">
+<input id="loginPassword" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<p class="small">Don't have an account?</p>
+<button class="secondary" onclick="showSignup()">Create account</button>
 </div>
 
-<h2>Manage Posted Tasks</h2>
+<div id="signupBox" class="hidden">
+<h3>Create account</h3>
+<input id="regName" placeholder="Full name">
+<input id="regEmail" type="email" placeholder="Email address">
+<input id="regPassword" type="password" placeholder="Create password">
+<button onclick="signup()">Register</button>
+<button class="secondary" onclick="showLogin()">Back to login</button>
+</div>
+<p id="authMessage" class="small"></p>
+</div>
+</section>
+
+<section id="dashboard" class="hidden">
+<div class="card">
+<h3 id="welcome">Dashboard</h3>
+<p>Demo points: <strong class="green" id="balance">0</strong></p>
+<p class="small">These points have no cash value.</p>
+</div>
+
+<div class="nav">
+<button onclick="page('tasks')">Tasks</button>
+<button onclick="page('withdraw')">Withdraw</button>
+<button onclick="page('profile')">Profile</button>
+<button onclick="page('history')">History</button>
+<button id="adminButton" class="hidden" onclick="page('admin')">Admin</button>
+<button class="secondary" onclick="logout()">Logout</button>
+</div>
+
+<div id="tasksPage" class="card">
+<h3>Available Tasks</h3>
+<div id="taskList">Loading tasks...</div>
+</div>
+
+<div id="withdrawPage" class="card hidden">
+<h3>Demo Withdrawal Request</h3>
+<p class="small">This only records a request. It does not send money.</p>
+<input id="bankName" placeholder="Bank name">
+<input id="accountName" placeholder="Account name">
+<input id="accountNumber" maxlength="10" placeholder="Account number">
+<input id="withdrawAmount" type="number" placeholder="Demo points requested">
+<button onclick="requestWithdraw()">Submit request</button>
+<div id="withdrawMessage" class="small"></div>
+</div>
+
+<div id="profilePage" class="card hidden">
+<h3>My Profile</h3>
+<p id="profileEmail" class="small"></p>
+<input id="profileName" placeholder="Full name">
+<button onclick="saveProfile()">Save profile</button>
+</div>
+
+<div id="historyPage" class="card hidden">
+<h3>My Activity</h3>
+<div id="historyList"></div>
+</div>
+
+<div id="adminPage" class="card hidden">
+<h3>Admin Dashboard</h3>
+<p class="small">Admin access is checked using your Firebase UID.</p>
+<h3>Post New Task</h3>
+<input id="newTaskTitle" placeholder="Task title">
+<textarea id="newTaskDescription" placeholder="Task instructions"></textarea>
+<input id="newTaskReward" type="number" placeholder="Demo points reward">
+<button onclick="postTask()">Publish task</button>
+
+<h3>Manage Tasks</h3>
 <div id="adminTasks"></div>
 
-<h2>Pending Submissions</h2>
-<div id="adminSubmissions"></div>
+<h3>Submitted Proofs</h3>
+<div id="submissionList"></div>
 
-<button onclick="loadAdminData()">REFRESH DATA</button>
-<button onclick="logout()" class="red">LOG OUT</button>
-
+<h3>Demo Withdrawal Requests</h3>
+<div id="adminWithdrawals"></div>
+</div>
 </section>
+</main>
 
-<footer>
-PJ-EARNING HUB © 2026<br>
-WORK • EARN • GROW
-<br><br>
-<span onclick="showAuth('login')" style="cursor:pointer">Staff Login</span>
-</footer>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-<script type="module">
-
-import {initializeApp}
-from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
-
-import {
-getAuth,
-createUserWithEmailAndPassword,
-signInWithEmailAndPassword,
-onAuthStateChanged,
-signOut
-} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
-
-import {
-getFirestore,
-doc,
-setDoc,
-getDoc,
-collection,
-getDocs,
-addDoc,
-deleteDoc,
-updateDoc,
-query,
-where,
-serverTimestamp,
-runTransaction
-} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
-
+<script>
 const firebaseConfig = {
-apiKey: "AIzaSyC6O2RSO27tCfq4F8qkyijAdgsIqZrlmVk",
-authDomain: "pj-earning-hub.firebaseapp.com",
-projectId: "pj-earning-hub",
-storageBucket: "pj-earning-hub.firebasestorage.app",
-messagingSenderId: "470981481788",
-appId: "1:470981481788:web:c1eeb9a0a2844d8804ba39",
-measurementId: "G-TL488P4PES"
+ apiKey: "AIzaSyC6O2RSO27tCfq4F8qkyijAdgsIqZrlmVk",
+ authDomain: "pj-earning-hub.firebaseapp.com",
+ projectId: "pj-earning-hub",
+ storageBucket: "pj-earning-hub.firebasestorage.app",
+ messagingSenderId: "470981481788",
+ appId: "1:470981481788:web:c1eeb9a0a2844d8804ba39",
+ measurementId: "G-TL488P4PES"
 };
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 const ADMIN_UID = "FDTfk3CWHUcccM6LEeVbFUG7MRx1";
+let currentUser = null;
+let isAdmin = false;
+let myProfile = {};
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+function el(id){return document.getElementById(id)}
+function message(id,text){el(id).textContent=text}
 
-let authMode = "register";
-
-const $ = id => document.getElementById(id);
-
-function showMessage(message){
-$("message").textContent = message;
+function showSignup(){
+ el("loginBox").classList.add("hidden");
+ el("signupBox").classList.remove("hidden");
+}
+function showLogin(){
+ el("signupBox").classList.add("hidden");
+ el("loginBox").classList.remove("hidden");
 }
 
-window.showAuth = function(mode){
-authMode = mode;
-$("auth").classList.remove("hidden");
-
-$("authTitle").textContent =
-mode === "login" ? "Login" : "Create Account";
-
-$("authButton").textContent =
-mode === "login" ? "LOGIN" : "CREATE ACCOUNT";
-
-$("nameBox").classList.toggle("hidden",mode === "login");
-
-$("switchText").textContent =
-mode === "login" ? "Need an account? Register" : "Already registered? Login";
-
-$("switchText").onclick = () =>
-showAuth(mode === "login" ? "register" : "login");
-
-showMessage("");
-$("auth").scrollIntoView({behavior:"smooth"});
-};
-
-window.submitAuth = async function(){
-
-const name = $("fullName").value.trim();
-const email = $("email").value.trim();
-const password = $("password").value;
-
-if(!email || !password || (authMode === "register" && !name)){
-showMessage("Please fill in all required fields.");
-return;
+async function signup(){
+ const name=el("regName").value.trim();
+ const email=el("regEmail").value.trim();
+ const password=el("regPassword").value;
+ if(!name||!email||password.length<6){
+  message("authMessage","Enter your name, email and a password of at least 6 characters.");
+  return;
+ }
+ try{
+  const result=await auth.createUserWithEmailAndPassword(email,password);
+  await db.collection("users").doc(result.user.uid).set({
+   name:name,email:email,demoPoints:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  message("authMessage","Account created.");
+ }catch(e){message("authMessage",e.message)}
 }
 
-showMessage("Please wait...");
+async function login(){
+ try{
+  await auth.signInWithEmailAndPassword(
+   el("loginEmail").value.trim(),
+   el("loginPassword").value
+  );
+ }catch(e){message("authMessage",e.message)}
+}
 
-try{
+function logout(){auth.signOut()}
 
-if(authMode === "register"){
-
-const result = await createUserWithEmailAndPassword(auth,email,password);
-
-await setDoc(doc(db,"users",result.user.uid),{
-name,
-email,
-balance:0,
-status:"active",
-createdAt:serverTimestamp()
+auth.onAuthStateChanged(async user=>{
+ currentUser=user;
+ if(!user){
+  el("auth").classList.remove("hidden");
+  el("dashboard").classList.add("hidden");
+  return;
+ }
+ isAdmin=user.uid===ADMIN_UID;
+ el("auth").classList.add("hidden");
+ el("dashboard").classList.remove("hidden");
+ el("adminButton").classList.toggle("hidden",!isAdmin);
+ await loadProfile();
+ await loadTasks();
+ await loadHistory();
+ if(isAdmin) await loadAdmin();
 });
 
-}else{
-
-await signInWithEmailAndPassword(auth,email,password);
-
+async function loadProfile(){
+ const ref=db.collection("users").doc(currentUser.uid);
+ const snap=await ref.get();
+ if(!snap.exists){
+  await ref.set({name:currentUser.email,demoPoints:0,email:currentUser.email});
+ }
+ const data=(await ref.get()).data();
+ myProfile=data;
+ el("welcome").textContent="Welcome, "+(data.name||"User");
+ el("balance").textContent=data.demoPoints||0;
+ el("profileEmail").textContent=currentUser.email;
+ el("profileName").value=data.name||"";
 }
 
-}catch(error){
-showMessage(error.message);
+async function saveProfile(){
+ const name=el("profileName").value.trim();
+ if(!name)return alert("Enter your name.");
+ try{
+  await db.collection("users").doc(currentUser.uid).update({name:name});
+  await loadProfile();
+  alert("Profile updated.");
+ }catch(e){alert(e.message)}
 }
 
-};
-
-// AUTHENTICATION
-
-onAuthStateChanged(auth,async user=>{
-
-$("auth").classList.add("hidden");
-$("dashboard").classList.add("hidden");
-$("adminDashboard").classList.add("hidden");
-
-if(!user)return;
-
-if(user.uid === ADMIN_UID){
-
-$("adminDashboard").classList.remove("hidden");
-$("adminEmail").textContent = user.email;
-
-await loadAdminData();
-
-}else{
-
-$("dashboard").classList.remove("hidden");
-$("accountEmail").textContent = user.email;
-
-try{
-
-const userDoc = await getDoc(doc(db,"users",user.uid));
-
-if(!userDoc.exists()){
-alert("User account record not found.");
-return;
+function page(name){
+ ["tasks","withdraw","profile","history","admin"].forEach(p=>{
+  el(p+"Page").classList.add("hidden");
+ });
+ if(name==="admin"&&!isAdmin)return;
+ el(name+"Page").classList.remove("hidden");
+ if(name==="history")loadHistory();
+ if(name==="admin")loadAdmin();
 }
 
-const data = userDoc.data();
-
-$("welcomeName").textContent = data.name || "User";
-$("balance").textContent = data.balance || 0;
-
-await loadTasks();
-await loadMySubmissions();
-
-}catch(error){
-alert("Account loading error: " + error.message);
+async function loadTasks(){
+ const box=el("taskList");
+ box.innerHTML="Loading...";
+ try{
+  const snap=await db.collection("tasks").orderBy("createdAt","desc").get();
+  box.innerHTML="";
+  if(snap.empty){box.textContent="No tasks available yet.";return}
+  for(const doc of snap.docs){
+   const t=doc.data();
+   const div=document.createElement("div");
+   div.className="item";
+   const title=document.createElement("h3");
+   title.textContent=t.title||"Task";
+   const desc=document.createElement("p");
+   desc.textContent=t.description||"";
+   const reward=document.createElement("p");
+   reward.textContent="Reward: "+(t.reward||0)+" demo points";
+   const proof=document.createElement("textarea");
+   proof.placeholder="Enter your task proof or completion details";
+   const btn=document.createElement("button");
+   btn.textContent="Submit task";
+   btn.onclick=()=>submitTask(doc.id,proof.value);
+   div.append(title,desc,reward,proof,btn);
+   box.appendChild(div);
+  }
+ }catch(e){box.textContent=e.message}
 }
 
+async function submitTask(taskId,proof){
+ if(!proof.trim())return alert("Enter your proof first.");
+ try{
+  await db.collection("submissions").add({
+   taskId:taskId,userId:currentUser.uid,
+   email:currentUser.email,proof:proof.trim(),
+   status:"pending",
+   createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  alert("Proof submitted for admin review.");
+  await loadHistory();
+ }catch(e){alert(e.message)}
 }
 
-});
-
-// USER TASKS
-
-window.loadTasks = async function(){
-
-const list = $("taskList");
-list.innerHTML = "Loading tasks...";
-
-try{
-
-const result = await getDocs(
-query(collection(db,"tasks"),where("status","==","active"))
-);
-
-list.innerHTML = "";
-
-if(result.empty){
-list.textContent = "No active tasks yet.";
-return;
+async function loadHistory(){
+ const box=el("historyList");
+ if(!currentUser)return;
+ box.innerHTML="Loading...";
+ try{
+  const snap=await db.collection("submissions")
+   .where("userId","==",currentUser.uid).get();
+  box.innerHTML="";
+  snap.forEach(d=>{
+   const s=d.data();
+   const div=document.createElement("div");
+   div.className="item";
+   div.textContent="Task: "+s.taskId+" | Status: "+s.status;
+   box.appendChild(div);
+  });
+  const ws=await db.collection("withdrawals")
+   .where("userId","==",currentUser.uid).get();
+  ws.forEach(d=>{
+   const w=d.data();
+   const div=document.createElement("div");
+   div.className="item";
+   div.textContent="Withdrawal request: "+w.amount+" demo points | "+w.status;
+   box.appendChild(div);
+  });
+  if(!box.children.length)box.textContent="No activity yet.";
+ }catch(e){box.textContent=e.message}
 }
 
-result.forEach(item=>{
-
-const task = item.data();
-const card = document.createElement("div");
-card.className = "task";
-
-const title = document.createElement("h3");
-title.textContent = task.title;
-
-const description = document.createElement("p");
-description.textContent = task.description;
-
-const reward = document.createElement("p");
-reward.textContent = "Reward: ₦" + task.reward;
-
-const proof = document.createElement("textarea");
-proof.placeholder = "Enter your task proof or proof link";
-
-const submit = document.createElement("button");
-submit.textContent = "SUBMIT TASK";
-submit.className = "full";
-
-submit.onclick = async()=>{
-
-if(!proof.value.trim()){
-alert("Please enter your proof.");
-return;
+async function requestWithdraw(){
+ const amount=Number(el("withdrawAmount").value);
+ const bank=el("bankName").value.trim();
+ const account=el("accountName").value.trim();
+ const number=el("accountNumber").value.trim();
+ if(!amount||amount<=0||!bank||!account||!/^\d{10}$/.test(number)){
+  message("withdrawMessage","Enter valid details and a positive amount.");
+  return;
+ }
+ try{
+  await db.collection("withdrawals").add({
+   userId:currentUser.uid,email:currentUser.email,
+   amount:amount,bank:bank,accountName:account,
+   accountNumber:number,status:"pending",
+   createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  message("withdrawMessage","Demo request submitted.");
+  el("withdrawAmount").value="";
+  await loadHistory();
+ }catch(e){message("withdrawMessage",e.message)}
 }
 
-submit.disabled = true;
-
-try{
-
-await addDoc(collection(db,"submissions"),{
-userId:auth.currentUser.uid,
-taskId:item.id,
-taskTitle:task.title,
-proof:proof.value.trim(),
-status:"pending",
-createdAt:serverTimestamp()
-});
-
-alert("Task submitted successfully!");
-proof.value = "";
-await loadMySubmissions();
-
-}catch(error){
-alert(error.message);
-}finally{
-submit.disabled = false;
+async function postTask(){
+ if(!isAdmin)return;
+ const title=el("newTaskTitle").value.trim();
+ const description=el("newTaskDescription").value.trim();
+ const reward=Number(el("newTaskReward").value);
+ if(!title||!description||!Number.isFinite(reward)||reward<0)
+  return alert("Fill all task details correctly.");
+ try{
+  await db.collection("tasks").add({
+   title,description,reward,
+   createdAt:firebase.firestore.FieldValue.serverTimestamp()
+  });
+  el("newTaskTitle").value="";
+  el("newTaskDescription").value="";
+  el("newTaskReward").value="";
+  alert("Task published.");
+  await loadTasks();
+  await loadAdmin();
+ }catch(e){alert(e.message)}
 }
 
-};
+async function loadAdmin(){
+ if(!isAdmin)return;
+ const taskBox=el("adminTasks");
+ const submissionBox=el("submissionList");
+ const withdrawalBox=el("adminWithdrawals");
+ taskBox.innerHTML="Loading...";
+ submissionBox.innerHTML="Loading...";
+ withdrawalBox.innerHTML="Loading...";
+ try{
+  const tasks=await db.collection("tasks").get();
+  taskBox.innerHTML="";
+  tasks.forEach(d=>{
+   const div=document.createElement("div");
+   div.className="item";
+   div.textContent=d.data().title+" ";
+   const btn=document.createElement("button");
+   btn.className="danger";
+   btn.textContent="Delete task";
+   btn.onclick=async()=>{
+    if(confirm("Delete this task?")){
+     await db.collection("tasks").doc(d.id).delete();
+     loadAdmin();loadTasks();
+    }
+   };
+   div.appendChild(btn);
+   taskBox.appendChild(div);
+  });
 
-card.append(title,description,reward,proof,submit);
-list.appendChild(card);
+  const subs=await db.collection("submissions")
+   .where("status","==","pending").get();
+  submissionBox.innerHTML="";
+  if(subs.empty)submissionBox.textContent="No pending proofs.";
+  subs.forEach(d=>{
+   const s=d.data();
+   const div=document.createElement("div");
+   div.className="item";
+   const info=document.createElement("p");
+   info.textContent="User: "+s.email+" | Task: "+s.taskId+" | Proof: "+s.proof;
+   const approve=document.createElement("button");
+   approve.textContent="Approve proof";
+   approve.onclick=()=>approveProof(d.id,s);
+   const reject=document.createElement("button");
+   reject.className="danger";
+   reject.textContent="Reject proof";
+   reject.onclick=()=>rejectProof(d.id);
+   div.append(info,approve,reject);
+   submissionBox.appendChild(div);
+  });
 
-});
-
-}catch(error){
-list.textContent = error.message;
+  const withdrawals=await db.collection("withdrawals")
+   .where("status","==","pending").get();
+  withdrawalBox.innerHTML="";
+  if(withdrawals.empty)withdrawalBox.textContent="No pending requests.";
+  withdrawals.forEach(d=>{
+   const w=d.data();
+   const div=document.createElement("div");
+   div.className="item";
+   const info=document.createElement("p");
+   info.textContent="User: "+w.email+" | "+w.amount+" demo points | "+w.bank+" | "+w.accountName+" | "+w.accountNumber;
+   const mark=document.createElement("button");
+   mark.textContent="Mark demo request processed";
+   mark.onclick=async()=>{
+    await db.collection("withdrawals").doc(d.id).update({status:"demo processed"});
+    loadAdmin();loadHistory();
+   };
+   const reject=document.createElement("button");
+   reject.className="danger";
+   reject.textContent="Reject request";
+   reject.onclick=async()=>{
+    await db.collection("withdrawals").doc(d.id).update({status:"rejected"});
+    loadAdmin();loadHistory();
+   };
+   div.append(info,mark,reject);
+   withdrawalBox.appendChild(div);
+  });
+ }catch(e){
+  taskBox.textContent=e.message;
+  submissionBox.textContent=e.message;
+  withdrawalBox.textContent=e.message;
+ }
 }
 
-};
-
-// USER SUBMISSIONS
-
-window.loadMySubmissions = async function(){
-
-const list = $("mySubmissions");
-list.innerHTML = "Loading...";
-
-try{
-
-const result = await getDocs(
-query(
-collection(db,"submissions"),
-where("userId","==",auth.currentUser.uid)
-)
-);
-
-list.innerHTML = "";
-
-if(result.empty){
-list.textContent = "No submissions yet.";
-return;
+async function approveProof(id,s){
+ if(!isAdmin)return;
+ try{
+  const task=await db.collection("tasks").doc(s.taskId).get();
+  if(!task.exists)return alert("Task no longer exists.");
+  const reward=Number(task.data().reward)||0;
+  await db.collection("submissions").doc(id).update({status:"approved"});
+  const userRef=db.collection("users").doc(s.userId);
+  await db.runTransaction(async transaction=>{
+   const userSnap=await transaction.get(userRef);
+   const oldPoints=userSnap.exists?Number(userSnap.data().demoPoints)||0:0;
+   transaction.set(userRef,{demoPoints:oldPoints+reward},{merge:true});
+  });
+  alert("Proof approved. Demo points added.");
+  await loadAdmin();
+ }catch(e){alert(e.message)}
 }
 
-result.forEach(item=>{
-
-const data = item.data();
-const card = document.createElement("div");
-card.className = "task";
-
-const title = document.createElement("h3");
-title.textContent = data.taskTitle;
-
-const status = document.createElement("p");
-status.textContent = "Status: " + data.status.toUpperCase();
-
-card.append(title,status);
-list.appendChild(card);
-
-});
-
-}catch(error){
-list.textContent = error.message;
+async function rejectProof(id){
+ if(!isAdmin)return;
+ try{
+  await db.collection("submissions").doc(id).update({status:"rejected"});
+  await loadAdmin();
+ }catch(e){alert(e.message)}
 }
-
-};
-
-// ADMIN: POST TASK
-
-window.postTask = async function(){
-
-if(auth.currentUser?.uid !== ADMIN_UID)return;
-
-const title = $("taskTitle").value.trim();
-const description = $("taskDescription").value.trim();
-const reward = Number($("taskReward").value);
-
-if(!title || !description || !Number.isFinite(reward) || reward <= 0){
-$("postMessage").textContent = "Fill all fields correctly.";
-return;
-}
-
-try{
-
-await addDoc(collection(db,"tasks"),{
-title,
-description,
-reward,
-status:"active",
-createdAt:serverTimestamp()
-});
-
-$("taskTitle").value = "";
-$("taskDescription").value = "";
-$("taskReward").value = "";
-
-$("postMessage").textContent = "Task published successfully!";
-
-await loadAdminData();
-
-}catch(error){
-$("postMessage").textContent = error.message;
-}
-
-};
-
-// ADMIN DATA
-
-window.loadAdminData = async function(){
-
-if(auth.currentUser?.uid !== ADMIN_UID)return;
-
-const tasks = $("adminTasks");
-const submissions = $("adminSubmissions");
-
-tasks.innerHTML = "Loading...";
-submissions.innerHTML = "Loading...";
-
-try{
-
-const taskResult = await getDocs(collection(db,"tasks"));
-tasks.innerHTML = "";
-
-if(taskResult.empty){
-tasks.textContent = "No jobs posted.";
-}
-
-taskResult.forEach(item=>{
-
-const data = item.data();
-const card = document.createElement("div");
-card.className = "task";
-
-const title = document.createElement("h3");
-title.textContent = data.title;
-
-const details = document.createElement("p");
-details.textContent = "Reward: ₦" + data.reward + " | " + data.status;
-
-const remove = document.createElement("button");
-remove.textContent = "DELETE TASK";
-remove.className = "red";
-
-remove.onclick = async()=>{
-
-if(!confirm("Delete this task?"))return;
-
-try{
-await deleteDoc(doc(db,"tasks",item.id));
-await loadAdminData();
-}catch(error){
-alert(error.message);
-}
-
-};
-
-card.append(title,details,remove);
-tasks.appendChild(card);
-
-});
-
-const submissionResult = await getDocs(
-query(collection(db,"submissions"),where("status","==","pending"))
-);
-
-submissions.innerHTML = "";
-
-if(submissionResult.empty){
-submissions.textContent = "No pending submissions.";
-}
-
-submissionResult.forEach(item=>{
-
-const data = item.data();
-const card = document.createElement("div");
-card.className = "task";
-
-const title = document.createElement("h3");
-title.textContent = data.taskTitle;
-
-const proof = document.createElement("p");
-proof.textContent = "Proof: " + data.proof;
-
-const uid = document.createElement("p");
-uid.textContent = "User ID: " + data.userId;
-
-const approve = document.createElement("button");
-approve.textContent = "APPROVE & PAY";
-
-const reject = document.createElement("button");
-reject.textContent = "REJECT";
-reject.className = "red";
-
-approve.onclick = async()=>{
-
-if(!confirm("Approve this task and credit the user?"))return;
-
-approve.disabled = true;
-
-try{
-
-const submissionRef = doc(db,"submissions",item.id);
-const taskRef = doc(db,"tasks",data.taskId);
-const userRef = doc(db,"users",data.userId);
-
-await runTransaction(db,async transaction=>{
-
-const submissionDoc = await transaction.get(submissionRef);
-const taskDoc = await transaction.get(taskRef);
-const userDoc = await transaction.get(userRef);
-
-if(!submissionDoc.exists() ||
-submissionDoc.data().status !== "pending"){
-throw new Error("Submission already reviewed.");
-}
-
-if(!taskDoc.exists() || !userDoc.exists()){
-throw new Error("Task or user account not found.");
-}
-
-const reward = Number(taskDoc.data().reward);
-const oldBalance = Number(userDoc.data().balance || 0);
-
-if(!Number.isFinite(reward) || reward <= 0){
-throw new Error("Invalid task reward.");
-}
-
-transaction.update(userRef,{
-balance:oldBalance + reward
-});
-
-transaction.update(submissionRef,{
-status:"approved",
-reviewedAt:serverTimestamp(),
-approvedReward:reward
-});
-
-});
-
-alert("Approved! User balance updated.");
-await loadAdminData();
-
-}catch(error){
-alert(error.message);
-}finally{
-approve.disabled = false;
-}
-
-};
-
-reject.onclick = async()=>{
-
-if(!confirm("Reject this submission?"))return;
-
-try{
-
-await updateDoc(doc(db,"submissions",item.id),{
-status:"rejected",
-reviewedAt:serverTimestamp()
-});
-
-await loadAdminData();
-
-}catch(error){
-alert(error.message);
-}
-
-};
-
-card.append(title,proof,uid,approve,reject);
-submissions.appendChild(card);
-
-});
-
-}catch(error){
-
-tasks.textContent = error.message;
-submissions.textContent = error.message;
-
-}
-
-};
-
-// LOGOUT
-
-window.logout = async function(){
-await signOut(auth);
-};
-
 </script>
-
 </body>
 </html>
