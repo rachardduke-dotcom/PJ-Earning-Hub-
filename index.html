@@ -286,10 +286,14 @@ const reward=document.createElement("p");
 reward.textContent="Reward: ₦"+(t.reward||0);
 const proof=document.createElement("textarea");
 proof.placeholder="Enter task proof";
+let screenshot=document.createElement("input");
+screenshot.type="file";
+screenshot.accept="image/*";
+screenshot.id="DepositScreenshot";
 const btn=document.createElement("button");
 btn.textContent="Submit task";
 btn.onclick=()=>submitTask(doc.id,proof.value);
-div.append(title,desc,reward,proof,btn);
+div.append(title,desc,reward,proof,screenshot,btn);
 box.appendChild(div);
 });
 }catch(e){box.textContent=e.message}
