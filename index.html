@@ -22,7 +22,7 @@ button.danger{background:#b83232;color:white}
 .hidden{display:none}
 .nav{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .nav button{font-size:12px;padding:11px 4px}
-.item{background:#1a3024;padding:12px;border-radius:9px;margin:9px 0}
+.item{background:#1a3024;padding:12px;border-radius:9px;margin:9px 0;overflow-wrap:anywhere}
 h3{color:#20c978}
 .notice{background:#263b30;padding:12px;border-radius:8px;color:#ffe49a;font-size:13px}
 </style>
@@ -31,11 +31,10 @@ h3{color:#20c978}
 
 <header>
 <h2>PJ-EARNING HUB</h2>
-<p class="small">Learn • Complete Tasks • Earn Demo Points</p>
+<p class="small">Learn • Complete Tasks • Track Progress</p>
 </header>
 
 <main>
-
 <section id="auth">
 <div class="card">
 <h3>Welcome</h3>
@@ -63,17 +62,15 @@ h3{color:#20c978}
 </section>
 
 <section id="dashboard" class="hidden">
-
 <div class="card">
 <h3 id="welcome">Dashboard</h3>
 <p>Demo points: <strong class="green" id="balance">0</strong></p>
-<p class="small">Demo points have no cash value.</p>
+<p class="small">Demo points are for tracking activity only. They have no cash value.</p>
 </div>
 
 <div class="nav">
 <button onclick="page('tasks')">Tasks</button>
 <button onclick="page('deposit')">Deposit</button>
-<button onclick="page('withdraw')">Withdraw</button>
 <button onclick="page('profile')">Profile</button>
 <button onclick="page('history')">History</button>
 <button id="adminButton" class="hidden" onclick="page('admin')">Admin</button>
@@ -85,36 +82,13 @@ h3{color:#20c978}
 <div id="taskList">Loading tasks...</div>
 </div>
 
-<!-- DEMO DEPOSIT PAGE -->
 <div id="depositPage" class="card hidden">
-<h3>Deposit</h3>
-
-<div class="notice">Do well to recheck details before you deposit to avoid aby complicated issues.
+<h3>Optional Deposit Information</h3>
+<div class="notice">
+Depositing is not required to create an account, view tasks or submit task proof.
 </div>
-
-<p>Minimum request: <strong>500 NGN</strong></p>
-
-<input id="depositAmount" type="number" placeholder="Enter amount (minimum 500)">
-
-<input id="depositReference" placeholder="Optional reference">
-
-<button onclick="submitDeposit()">Submit request</button>
-
-<p id="depositMessage" class="small"></p>
-
-<h3>My Deposit Requests</h3>
-<div id="myDeposits">No requests yet.</div>
-</div>
-
-<div id="withdrawPage" class="card hidden">
-<h3>Withdrawal Request</h3>
-<p class="small">This only records a request. It does not send money.</p>
-<input id="bankName" placeholder="Bank name">
-<input id="accountName" placeholder="Account name">
-<input id="accountNumber" maxlength="10" placeholder="Account number">
-<input id="withdrawAmount" type="number" placeholder="Demo points requested">
-<button onclick="requestWithdraw()">Submit request</button>
-<div id="withdrawMessage" class="small"></div>
+<p>You do not need to pay money to use the task section.</p>
+<p class="small">This page does not collect payments, bank details or payment screenshots. No deposit is credited to your account.</p>
 </div>
 
 <div id="profilePage" class="card hidden">
@@ -131,11 +105,7 @@ h3{color:#20c978}
 
 <div id="adminPage" class="card hidden">
 <h3>Admin Dashboard</h3>
-
 <p class="small">Admin access is checked using your Firebase UID.</p>
-
-<h3>Pending Deposits</h3>
-<div id="adminDeposits">Loading...</div>
 
 <h3>Post New Task</h3>
 <input id="newTaskTitle" placeholder="Task title">
@@ -148,11 +118,7 @@ h3{color:#20c978}
 
 <h3>Submitted Proofs</h3>
 <div id="submissionList"></div>
-
-<h3>Demo Withdrawal Requests</h3>
-<div id="adminWithdrawals"></div>
 </div>
-
 </section>
 </main>
 
@@ -173,22 +139,16 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-const auth = firebase.auth();
-const db = firebase.firestore();
+const auth=firebase.auth();
+const db=firebase.firestore();
+const ADMIN_UID="FDTfk3CWHUcccM6LEeVbFUG7MRx1";
 
-const ADMIN_UID = "FDTfk3CWHUcccM6LEeVbFUG7MRx1";
+let currentUser=null;
+let isAdmin=false;
+let myProfile={};
 
-let currentUser = null;
-let isAdmin = false;
-let myProfile = {};
-
-function el(id){
- return document.getElementById(id);
-}
-
-function message(id,text){
- el(id).textContent=text;
-}
+function el(id){return document.getElementById(id)}
+function message(id,text){el(id).textContent=text}
 
 function showSignup(){
  el("loginBox").classList.add("hidden");
@@ -212,14 +172,12 @@ async function signup(){
 
  try{
   const result=await auth.createUserWithEmailAndPassword(email,password);
-
   await db.collection("users").doc(result.user.uid).set({
    name:name,
    email:email,
    demoPoints:0,
    createdAt:firebase.firestore.FieldValue.serverTimestamp()
   });
-
   message("authMessage","Account created.");
  }catch(e){
   message("authMessage",e.message);
@@ -237,9 +195,7 @@ async function login(){
  }
 }
 
-function logout(){
- auth.signOut();
-}
+function logout(){auth.signOut()}
 
 auth.onAuthStateChanged(async user=>{
  currentUser=user;
@@ -251,7 +207,6 @@ auth.onAuthStateChanged(async user=>{
  }
 
  isAdmin=user.uid===ADMIN_UID;
-
  el("auth").classList.add("hidden");
  el("dashboard").classList.remove("hidden");
  el("adminButton").classList.toggle("hidden",!isAdmin);
@@ -259,51 +214,42 @@ auth.onAuthStateChanged(async user=>{
  await loadProfile();
  await loadTasks();
  await loadHistory();
- await loadMyDeposits();
-
- if(isAdmin) await loadAdmin();
+ if(isAdmin)await loadAdmin();
 });
 
 async function loadProfile(){
  const ref=db.collection("users").doc(currentUser.uid);
- const snap=await ref.get();
+ let snap=await ref.get();
 
  if(!snap.exists){
   await ref.set({
    name:currentUser.email,
-   demoPoints:0,
-   email:currentUser.email
+   email:currentUser.email,
+   demoPoints:0
   });
+  snap=await ref.get();
  }
 
- const data=(await ref.get()).data();
- myProfile=data;
-
- el("welcome").textContent="Welcome, "+(data.name||"User");
- el("balance").textContent=data.demoPoints||0;
+ myProfile=snap.data();
+ el("welcome").textContent="Welcome, "+(myProfile.name||"User");
+ el("balance").textContent=myProfile.demoPoints||0;
  el("profileEmail").textContent=currentUser.email;
- el("profileName").value=data.name||"";
+ el("profileName").value=myProfile.name||"";
 }
 
 async function saveProfile(){
  const name=el("profileName").value.trim();
-
  if(!name)return alert("Enter your name.");
 
  try{
-  await db.collection("users").doc(currentUser.uid).update({
-   name:name
-  });
-
+  await db.collection("users").doc(currentUser.uid).update({name});
   await loadProfile();
   alert("Profile updated.");
- }catch(e){
-  alert(e.message);
- }
+ }catch(e){alert(e.message)}
 }
 
 function page(name){
- ["tasks","deposit","withdraw","profile","history","admin"].forEach(p=>{
+ ["tasks","deposit","profile","history","admin"].forEach(p=>{
   el(p+"Page").classList.add("hidden");
  });
 
@@ -311,86 +257,16 @@ function page(name){
 
  el(name+"Page").classList.remove("hidden");
 
+ if(name==="tasks")loadTasks();
  if(name==="history")loadHistory();
  if(name==="admin")loadAdmin();
- if(name==="deposit")loadMyDeposits();
-}
-
-/* DEMO DEPOSIT SUBMISSION */
-
-async function submitDeposit(){
- const amount=Number(el("depositAmount").value);
- const reference=el("depositReference").value.trim();
-
- if(!Number.isFinite(amount)||amount<500){
-  message("depositMessage","Minimum demo request is 500 points.");
-  return;
- }
-
- try{
-  await db.collection("deposits").add({
-   userId:currentUser.uid,
-   email:currentUser.email,
-   amount:amount,
-   reference:reference,
-   status:"pending",
-   createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  });
-
-  message("depositMessage","Demo request submitted for admin review.");
-
-  el("depositAmount").value="";
-  el("depositReference").value="";
-
-  await loadMyDeposits();
-
-  if(isAdmin)await loadAdmin();
-
- }catch(e){
-  message("depositMessage",e.message);
- }
-}
-
-async function loadMyDeposits(){
- if(!currentUser)return;
-
- const box=el("myDeposits");
- box.textContent="Loading...";
-
- try{
-  const snap=await db.collection("deposits")
-   .where("userId","==",currentUser.uid)
-   .get();
-
-  box.innerHTML="";
-
-  if(snap.empty){
-   box.textContent="No demo deposit requests yet.";
-   return;
-  }
-
-  snap.forEach(d=>{
-   const x=d.data();
-   const div=document.createElement("div");
-   div.className="item";
-
-   div.textContent=
-    "Amount: "+x.amount+
-    " demo points | Status: "+x.status;
-
-   box.appendChild(div);
-  });
-
- }catch(e){
-  box.textContent=e.message;
- }
 }
 
 /* TASKS */
 
 async function loadTasks(){
  const box=el("taskList");
- box.innerHTML="Loading...";
+ box.textContent="Loading tasks...";
 
  try{
   const snap=await db.collection("tasks")
@@ -403,7 +279,7 @@ async function loadTasks(){
    return;
   }
 
-  for(const doc of snap.docs){
+  snap.forEach(doc=>{
    const t=doc.data();
    const div=document.createElement("div");
    div.className="item";
@@ -426,11 +302,8 @@ async function loadTasks(){
 
    div.append(title,desc,reward,proof,btn);
    box.appendChild(div);
-  }
-
- }catch(e){
-  box.textContent=e.message;
- }
+  });
+ }catch(e){box.textContent=e.message}
 }
 
 async function submitTask(taskId,proof){
@@ -438,7 +311,7 @@ async function submitTask(taskId,proof){
 
  try{
   await db.collection("submissions").add({
-   taskId:taskId,
+   taskId,
    userId:currentUser.uid,
    email:currentUser.email,
    proof:proof.trim(),
@@ -448,20 +321,15 @@ async function submitTask(taskId,proof){
 
   alert("Proof submitted for admin review.");
   await loadHistory();
-
- }catch(e){
-  alert(e.message);
- }
+ }catch(e){alert(e.message)}
 }
 
 /* HISTORY */
 
 async function loadHistory(){
- const box=el("historyList");
-
  if(!currentUser)return;
-
- box.innerHTML="Loading...";
+ const box=el("historyList");
+ box.textContent="Loading...";
 
  try{
   const snap=await db.collection("submissions")
@@ -477,70 +345,8 @@ async function loadHistory(){
    box.appendChild(div);
   });
 
-  const ws=await db.collection("withdrawals")
-   .where("userId","==",currentUser.uid).get();
-
-  ws.forEach(d=>{
-   const w=d.data();
-   const div=document.createElement("div");
-   div.className="item";
-   div.textContent="Withdrawal request: "+w.amount+" demo points | "+w.status;
-   box.appendChild(div);
-  });
-
-  const ds=await db.collection("deposits")
-   .where("userId","==",currentUser.uid).get();
-
-  ds.forEach(d=>{
-   const x=d.data();
-   const div=document.createElement("div");
-   div.className="item";
-   div.textContent="Demo deposit: "+x.amount+" points | "+x.status;
-   box.appendChild(div);
-  });
-
-  if(!box.children.length){
-   box.textContent="No activity yet.";
-  }
-
- }catch(e){
-  box.textContent=e.message;
- }
-}
-
-/* WITHDRAWAL */
-
-async function requestWithdraw(){
- const amount=Number(el("withdrawAmount").value);
- const bank=el("bankName").value.trim();
- const account=el("accountName").value.trim();
- const number=el("accountNumber").value.trim();
-
- if(!amount||amount<=0||!bank||!account||!/^\d{10}$/.test(number)){
-  message("withdrawMessage","Enter valid details and a positive amount.");
-  return;
- }
-
- try{
-  await db.collection("withdrawals").add({
-   userId:currentUser.uid,
-   email:currentUser.email,
-   amount:amount,
-   bank:bank,
-   accountName:account,
-   accountNumber:number,
-   status:"pending",
-   createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  });
-
-  message("withdrawMessage","Demo request submitted.");
-  el("withdrawAmount").value="";
-
-  await loadHistory();
-
- }catch(e){
-  message("withdrawMessage",e.message);
- }
+  if(!box.children.length)box.textContent="No activity yet.";
+ }catch(e){box.textContent=e.message}
 }
 
 /* ADMIN TASKS */
@@ -569,86 +375,34 @@ async function postTask(){
   el("newTaskReward").value="";
 
   alert("Task published.");
-
   await loadTasks();
   await loadAdmin();
-
- }catch(e){
-  alert(e.message);
- }
+ }catch(e){alert(e.message)}
 }
-
-/* ADMIN DASHBOARD */
 
 async function loadAdmin(){
  if(!isAdmin)return;
 
  const taskBox=el("adminTasks");
  const submissionBox=el("submissionList");
- const withdrawalBox=el("adminWithdrawals");
- const depositBox=el("adminDeposits");
 
- taskBox.innerHTML="Loading...";
- submissionBox.innerHTML="Loading...";
- withdrawalBox.innerHTML="Loading...";
- depositBox.innerHTML="Loading...";
+ taskBox.textContent="Loading...";
+ submissionBox.textContent="Loading...";
 
  try{
-
-  /* PENDING DEMO DEPOSITS */
-
-  const deposits=await db.collection("deposits")
-   .where("status","==","pending").get();
-
-  depositBox.innerHTML="";
-
-  if(deposits.empty){
-   depositBox.textContent="No pending demo deposits.";
-  }
-
-  deposits.forEach(d=>{
-   const x=d.data();
-
-   const div=document.createElement("div");
-   div.className="item";
-
-   const info=document.createElement("p");
-
-   info.textContent=
-    "User: "+x.email+
-    " | Amount: "+x.amount+
-    " demo points"+
-    " | Reference: "+(x.reference||"None");
-
-   const approve=document.createElement("button");
-   approve.textContent="Approve demo points";
-   approve.onclick=()=>approveDeposit(d.id);
-
-   const reject=document.createElement("button");
-   reject.className="danger";
-   reject.textContent="Reject request";
-   reject.onclick=()=>rejectDeposit(d.id);
-
-   div.append(info,approve,reject);
-   depositBox.appendChild(div);
-  });
-
-  /* MANAGE TASKS */
-
   const tasks=await db.collection("tasks").get();
-
   taskBox.innerHTML="";
+
+  if(tasks.empty)taskBox.textContent="No tasks posted.";
 
   tasks.forEach(d=>{
    const div=document.createElement("div");
    div.className="item";
-
    div.textContent=d.data().title+" ";
 
    const btn=document.createElement("button");
    btn.className="danger";
    btn.textContent="Delete task";
-
    btn.onclick=async()=>{
     if(confirm("Delete this task?")){
      await db.collection("tasks").doc(d.id).delete();
@@ -661,26 +415,19 @@ async function loadAdmin(){
    taskBox.appendChild(div);
   });
 
-  /* SUBMITTED PROOFS */
-
   const subs=await db.collection("submissions")
    .where("status","==","pending").get();
 
   submissionBox.innerHTML="";
-
-  if(subs.empty){
-   submissionBox.textContent="No pending proofs.";
-  }
+  if(subs.empty)submissionBox.textContent="No pending proofs.";
 
   subs.forEach(d=>{
    const s=d.data();
-
    const div=document.createElement("div");
    div.className="item";
 
    const info=document.createElement("p");
-   info.textContent=
-    "User: "+s.email+
+   info.textContent="User: "+s.email+
     " | Task: "+s.taskId+
     " | Proof: "+s.proof;
 
@@ -696,183 +443,46 @@ async function loadAdmin(){
    div.append(info,approve,reject);
    submissionBox.appendChild(div);
   });
-
-  /* WITHDRAWALS */
-
-  const withdrawals=await db.collection("withdrawals")
-   .where("status","==","pending").get();
-
-  withdrawalBox.innerHTML="";
-
-  if(withdrawals.empty){
-   withdrawalBox.textContent="No pending requests.";
-  }
-
-  withdrawals.forEach(d=>{
-   const w=d.data();
-
-   const div=document.createElement("div");
-   div.className="item";
-
-   const info=document.createElement("p");
-   info.textContent=
-    "User: "+w.email+
-    " | "+w.amount+" demo points"+
-    " | "+w.bank+
-    " | "+w.accountName+
-    " | "+w.accountNumber;
-
-   const mark=document.createElement("button");
-   mark.textContent="Mark demo request processed";
-
-   mark.onclick=async()=>{
-    await db.collection("withdrawals").doc(d.id)
-     .update({status:"demo processed"});
-
-    await loadAdmin();
-    await loadHistory();
-   };
-
-   const reject=document.createElement("button");
-   reject.className="danger";
-   reject.textContent="Reject request";
-
-   reject.onclick=async()=>{
-    await db.collection("withdrawals").doc(d.id)
-     .update({status:"rejected"});
-
-    await loadAdmin();
-    await loadHistory();
-   };
-
-   div.append(info,mark,reject);
-   withdrawalBox.appendChild(div);
-  });
-
  }catch(e){
   taskBox.textContent=e.message;
   submissionBox.textContent=e.message;
-  withdrawalBox.textContent=e.message;
-  depositBox.textContent=e.message;
  }
 }
 
-/* APPROVE DEMO DEPOSIT */
-
-async function approveDeposit(id){
- if(!isAdmin)return;
-
- try{
-  const depositRef=db.collection("deposits").doc(id);
-
-  await db.runTransaction(async transaction=>{
-   const depositSnap=await transaction.get(depositRef);
-
-   if(!depositSnap.exists){
-    throw new Error("Request not found.");
-   }
-
-   const data=depositSnap.data();
-
-   if(data.status!=="pending"){
-    throw new Error("This request has already been handled.");
-   }
-
-   const userRef=db.collection("users").doc(data.userId);
-   const userSnap=await transaction.get(userRef);
-
-   if(!userSnap.exists){
-    throw new Error("User account not found.");
-   }
-
-   const oldPoints=Number(userSnap.data().demoPoints)||0;
-
-   transaction.update(userRef,{
-    demoPoints:oldPoints+Number(data.amount)
-   });
-
-   transaction.update(depositRef,{
-    status:"approved",
-    approvedAt:firebase.firestore.FieldValue.serverTimestamp()
-   });
-  });
-
-  alert("Demo points approved and added.");
-
-  await loadAdmin();
-  await loadMyDeposits();
-  await loadProfile();
-  await loadHistory();
-
- }catch(e){
-  alert(e.message);
- }
-}
-
-async function rejectDeposit(id){
- if(!isAdmin)return;
-
- try{
-  await db.collection("deposits").doc(id).update({
-   status:"rejected",
-   rejectedAt:firebase.firestore.FieldValue.serverTimestamp()
-  });
-
-  alert("Demo request rejected.");
-
-  await loadAdmin();
-  await loadMyDeposits();
-  await loadHistory();
-
- }catch(e){
-  alert(e.message);
- }
-}
-
-/* APPROVE TASK PROOF */
+/* APPROVE PROOF */
 
 async function approveProof(id,s){
  if(!isAdmin)return;
 
  try{
   const task=await db.collection("tasks").doc(s.taskId).get();
-
   if(!task.exists)return alert("Task no longer exists.");
 
   const reward=Number(task.data().reward)||0;
-
   const submissionRef=db.collection("submissions").doc(id);
   const userRef=db.collection("users").doc(s.userId);
 
   await db.runTransaction(async transaction=>{
    const submissionSnap=await transaction.get(submissionRef);
-
    if(!submissionSnap.exists||
       submissionSnap.data().status!=="pending"){
     throw new Error("This proof has already been handled.");
    }
 
    const userSnap=await transaction.get(userRef);
+   if(!userSnap.exists)throw new Error("User account not found.");
 
-   const oldPoints=userSnap.exists?
-    Number(userSnap.data().demoPoints)||0:0;
+   const oldPoints=Number(userSnap.data().demoPoints)||0;
 
    transaction.update(submissionRef,{status:"approved"});
-
-   transaction.set(userRef,{
-    demoPoints:oldPoints+reward
-   },{merge:true});
+   transaction.update(userRef,{demoPoints:oldPoints+reward});
   });
 
   alert("Proof approved. Demo points added.");
-
   await loadAdmin();
   await loadProfile();
   await loadHistory();
-
- }catch(e){
-  alert(e.message);
- }
+ }catch(e){alert(e.message)}
 }
 
 async function rejectProof(id){
@@ -882,15 +492,10 @@ async function rejectProof(id){
   await db.collection("submissions").doc(id).update({
    status:"rejected"
   });
-
   await loadAdmin();
   await loadHistory();
-
- }catch(e){
-  alert(e.message);
- }
+ }catch(e){alert(e.message)}
 }
-
 </script>
 </body>
 </html>
