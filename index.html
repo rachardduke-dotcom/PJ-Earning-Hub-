@@ -87,20 +87,18 @@ h3{color:#20c978}
 
 <!-- DEMO DEPOSIT PAGE -->
 <div id="depositPage" class="card hidden">
-<h3>Demo Deposit</h3>
+<h3>Deposit</h3>
 
-<div class="notice">
-This is a demonstration feature. Do not transfer real money.
-Demo points cannot be withdrawn or exchanged for cash.
+<div class="notice">Do well to recheck details before you deposit to avoid aby complicated issues.
 </div>
 
-<p>Minimum demo request: <strong>500 points</strong></p>
+<p>Minimum request: <strong>500 NGN</strong></p>
 
-<input id="depositAmount" type="number" placeholder="Enter demo amount (minimum 500)">
+<input id="depositAmount" type="number" placeholder="Enter amount (minimum 500)">
 
-<input id="depositReference" placeholder="Optional demo reference">
+<input id="depositReference" placeholder="Optional reference">
 
-<button onclick="submitDeposit()">Submit demo request</button>
+<button onclick="submitDeposit()">Submit request</button>
 
 <p id="depositMessage" class="small"></p>
 
@@ -109,7 +107,7 @@ Demo points cannot be withdrawn or exchanged for cash.
 </div>
 
 <div id="withdrawPage" class="card hidden">
-<h3>Demo Withdrawal Request</h3>
+<h3>Withdrawal Request</h3>
 <p class="small">This only records a request. It does not send money.</p>
 <input id="bankName" placeholder="Bank name">
 <input id="accountName" placeholder="Account name">
@@ -136,7 +134,7 @@ Demo points cannot be withdrawn or exchanged for cash.
 
 <p class="small">Admin access is checked using your Firebase UID.</p>
 
-<h3>Pending Demo Deposits</h3>
+<h3>Pending Deposits</h3>
 <div id="adminDeposits">Loading...</div>
 
 <h3>Post New Task</h3>
