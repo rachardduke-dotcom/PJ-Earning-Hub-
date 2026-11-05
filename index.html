@@ -26,9 +26,12 @@ button.danger{background:#b83232;color:white}
 .item{background:#1a3024;padding:12px;border-radius:9px;margin:9px 0;overflow-wrap:anywhere}
 h3{color:#20c978}
 .notice{background:#263b30;padding:12px;border-radius:8px;color:#ffe49a;font-size:13px}
-.receipt{width:100%;max-height:300px;object-fit:contain}
+.receipt{width:100%;max-height:300px;object-fit:contain;background:#07110d;border-radius:8px;margin-top:8px}
 hr{border:1px solid #244d38}
 .locked{background:#342d18;border:1px solid #a68b37;padding:15px;border-radius:10px;margin:10px 0}
+.status-pending{color:#ffe49a;font-weight:bold}
+.status-approved{color:#20c978;font-weight:bold}
+.status-rejected{color:#ff7777;font-weight:bold}
 </style>
 </head>
 
@@ -140,7 +143,8 @@ Your tasks will remain locked until your payment is verified.
 </div>
 
 <h3>Payment Details</h3>
-<p>Deposit Amount: <₦500</strong></p>
+
+<p>Deposit Amount: <strong>₦500</strong></p>
 <p>Bank: <strong>money master</strong></p>
 
 <p>Account Number:</p>
@@ -384,8 +388,6 @@ email,
 
 demoPoints:0,
 
-// IMPORTANT: NEW USERS START LOCKED
-
 taskAccess:false,
 
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
@@ -514,9 +516,6 @@ await ref.set({
 name:currentUser.displayName||currentUser.email||"User",
 email:currentUser.email||"",
 demoPoints:0,
-
-// DEFAULT LOCKED
-
 taskAccess:false,
 
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
@@ -1220,95 +1219,168 @@ window.prompt("Copy account number:",account);
 }
 
 
-/* SUBMIT DEPOSIT */
+/* SUBMIT DEPOSIT - WITH UPLOAD PROGRESS */
 
 async function submitDeposit(){
 
-if(!currentUser)return alert("Please log in first.");
+if(!currentUser){
+alert("Please log in first.");
+return;
+}
 
 const amount=Number(el("DepositAmount").value);
-
 const file=el("DepositScreenshot").files[0];
+const btn=el("DepositSubmitButton");
 
 if(!Number.isFinite(amount)||amount<=0){
-
 return alert("Enter the amount deposited.");
-
 }
 
 if(!file){
-
-return alert("Upload your payment screenshot.");
-
+return alert("Please select your payment screenshot.");
 }
 
 if(!file.type.startsWith("image/")){
-
-return alert("Select an image file.");
-
+return alert("Select a valid image file.");
 }
 
 if(file.size>5*1024*1024){
-
 return alert("Image must not exceed 5MB.");
-
 }
-
-const btn=el("DepositSubmitButton");
 
 if(btn.disabled)return;
 
 btn.disabled=true;
+btn.textContent="Preparing upload...";
 
-btn.textContent="Uploading...";
+message("DepositMessage","Preparing your deposit submission...");
+
+let depositRef=null;
+let uploadTask=null;
 
 try{
 
-const id=Date.now().toString();
+const id=db.collection("deposits").doc().id;
 
 const path="depositReceipts/"+currentUser.uid+"/"+id;
 
-const upload=await storage.ref(path).put(file);
+depositRef=db.collection("deposits").doc(id);
 
-const imageUrl=await upload.ref.getDownloadURL();
+/* CREATE DEPOSIT RECORD */
 
-await db.collection("deposits").add({
+await depositRef.set({
 
 userId:currentUser.uid,
-
 email:currentUser.email||"",
-
-amount,
-
-imageUrl,
-
+amount:amount,
+imageUrl:"",
 storagePath:path,
-
-status:"pending",
-
+fileName:file.name,
+status:"uploading",
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
+
+});
+
+/* UPLOAD SCREENSHOT WITH PROGRESS */
+
+btn.textContent="Uploading 0%";
+
+uploadTask=storage.ref(path).put(file);
+
+const imageUrl=await new Promise((resolve,reject)=>{
+
+uploadTask.on("state_changed",
+
+snapshot=>{
+
+const progress=snapshot.totalBytes
+?Math.round((snapshot.bytesTransferred/snapshot.totalBytes)*100)
+:0;
+
+btn.textContent="Uploading "+progress+"%";
+
+message(
+"DepositMessage",
+"Uploading your payment screenshot... "+progress+"%"
+);
+
+},
+
+error=>reject(error),
+
+async()=>{
+
+try{
+
+const url=await uploadTask.snapshot.ref.getDownloadURL();
+
+resolve(url);
+
+}catch(error){
+
+reject(error);
+
+}
+
+}
+
+);
+
+});
+
+/* SAVE IMAGE URL AND CHANGE STATUS TO PENDING */
+
+await depositRef.update({
+
+imageUrl:imageUrl,
+status:"pending",
+uploadedAt:firebase.firestore.FieldValue.serverTimestamp()
 
 });
 
 message(
 "DepositMessage",
-"Deposit submitted successfully. Your tasks will unlock after admin approval."
+"SUCCESS! Your deposit is now PENDING. Please wait for admin approval."
 );
 
 el("DepositAmount").value="";
-
 el("DepositScreenshot").value="";
 
 await loadDepositHistory();
 
 }catch(e){
 
-alert("Submission failed: "+e.message);
+console.error("Deposit upload error:",e);
+
+if(depositRef){
+
+try{
+
+await depositRef.update({
+
+status:"upload_failed",
+errorMessage:e.message
+
+});
+
+}catch(updateError){
+
+console.error("Could not update deposit status:",updateError);
+
+}
+
+}
+
+message(
+"DepositMessage",
+"Upload failed: "+e.message+". Please check your connection and try again."
+);
+
+alert("Deposit submission failed: "+e.message);
 
 }finally{
 
 btn.disabled=false;
-
 btn.textContent="Submit Deposit for Approval";
 
 }
@@ -1338,14 +1410,21 @@ snap.forEach(d=>{
 const p=d.data();
 
 const div=document.createElement("div");
-
 div.className="item";
 
 const info=document.createElement("p");
 
 info.textContent=
 "Amount: ₦"+money(p.amount)+
-" | Status: "+p.status;
+" | Status: "+String(p.status||"pending").toUpperCase();
+
+if(p.status==="pending"){
+info.className="status-pending";
+}else if(p.status==="approved"){
+info.className="status-approved";
+}else if(p.status==="rejected"){
+info.className="status-rejected";
+}
 
 div.appendChild(info);
 
@@ -1354,12 +1433,30 @@ if(p.imageUrl){
 const img=document.createElement("img");
 
 img.src=p.imageUrl;
-
 img.alt="Payment receipt";
-
 img.className="receipt";
 
 div.appendChild(img);
+
+}
+
+if(p.status==="uploading"){
+
+const pending=document.createElement("p");
+pending.className="small";
+pending.textContent="Your screenshot is still uploading. Please wait.";
+
+div.appendChild(pending);
+
+}
+
+if(p.status==="upload_failed"){
+
+const failed=document.createElement("p");
+failed.className="status-rejected";
+failed.textContent="Upload failed. Please submit your payment proof again.";
+
+div.appendChild(failed);
 
 }
 
@@ -1375,7 +1472,9 @@ box.textContent="No deposit submissions yet.";
 
 }catch(e){
 
-box.textContent=e.message;
+console.error("Deposit history error:",e);
+
+box.textContent="Could not load deposit history: "+e.message;
 
 }
 
@@ -1390,7 +1489,7 @@ if(!isAdmin)return;
 
 const box=el("depositAdminList");
 
-box.textContent="Loading...";
+box.textContent="Loading deposit proofs...";
 
 try{
 
@@ -1412,29 +1511,66 @@ snap.forEach(d=>{
 const p=d.data();
 
 const div=document.createElement("div");
-
 div.className="item";
+
+const heading=document.createElement("h3");
+heading.textContent="PENDING DEPOSIT";
 
 const info=document.createElement("p");
 
 info.textContent=
-"User: "+p.email+
+"User: "+(p.email||p.userId)+
 " | Amount: ₦"+money(p.amount);
+
+const fileInfo=document.createElement("p");
+fileInfo.className="small";
+fileInfo.textContent="Screenshot: "+(p.fileName||"Payment receipt");
+
+const status=document.createElement("p");
+status.className="status-pending";
+status.textContent="Status: PENDING";
+
+div.append(heading,info,fileInfo,status);
+
+/* DISPLAY THE ACTUAL UPLOADED SCREENSHOT */
+
+if(p.imageUrl){
 
 const img=document.createElement("img");
 
 img.src=p.imageUrl;
-
-img.alt="Deposit receipt";
-
+img.alt="Uploaded payment screenshot";
 img.className="receipt";
+
+img.onerror=function(){
+
+this.style.display="none";
+
+const error=document.createElement("p");
+error.className="small";
+error.textContent="Receipt image could not load. Check Firebase Storage permissions.";
+
+div.appendChild(error);
+
+};
+
+div.appendChild(img);
+
+}else{
+
+const noImage=document.createElement("p");
+noImage.className="small";
+noImage.textContent="Receipt image is not available.";
+
+div.appendChild(noImage);
+
+}
 
 const warning=document.createElement("p");
 
 warning.className="small";
-
 warning.textContent=
-"Verify the actual transfer before approving this deposit.";
+"Verify the actual payment in your bank account before approving.";
 
 const approve=document.createElement("button");
 
@@ -1445,12 +1581,11 @@ approve.onclick=()=>reviewDeposit(d.id,"approved",approve);
 const reject=document.createElement("button");
 
 reject.className="danger";
-
 reject.textContent="Reject Deposit";
 
 reject.onclick=()=>reviewDeposit(d.id,"rejected",reject);
 
-div.append(info,img,warning,approve,reject);
+div.append(warning,approve,reject);
 
 box.appendChild(div);
 
@@ -1458,7 +1593,9 @@ box.appendChild(div);
 
 }catch(e){
 
-box.textContent=e.message;
+console.error("Admin deposit loading error:",e);
+
+box.textContent="Could not load deposits: "+e.message;
 
 }
 
@@ -1509,8 +1646,6 @@ throw new Error("User account not found.");
 
 if(status==="approved"){
 
-// APPROVED DEPOSIT UNLOCKS USER TASKS
-
 tx.update(userRef,{
 
 taskAccess:true,
@@ -1521,8 +1656,6 @@ firebase.firestore.FieldValue.serverTimestamp()
 });
 
 }
-
-// REJECTED DEPOSIT DOES NOT UNLOCK TASKS
 
 tx.update(depositRef,{
 
