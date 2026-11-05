@@ -273,6 +273,7 @@ await db.collection("users").doc(result.user.uid).set({
 name,
 email,
 demoPoints:0,
+taskAccess:false,
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
 });
 
@@ -352,7 +353,9 @@ snap=await ref.get();
 
 }
 
-myProfile=snap.data();
+myProfile=snap.data()if(myProfile.taskAccess !== true){
+myProfile.taskAccess=false;
+}
 
 el("welcome").textContent="Welcome, "+(myProfile.name||"User");
 
@@ -426,9 +429,33 @@ if(name==="admin")loadAdmin();
 
 /* TASKS */
 
+
 async function loadTasks(){
 
 const box=el("taskList");
+box.innerHTML="";
+
+if(!currentUser){
+box.textContent="Please log in first.";
+return;
+}
+
+// Admin can always access tasks
+if(!isAdmin && myProfile.taskAccess !== true){
+
+const notice=document.createElement("div");
+notice.className="notice";
+notice.textContent=
+"🔒 TASKS LOCKED. Please submit your payment proof and wait for admin approval before accessing tasks.";
+
+const btn=document.createElement("button");
+btn.textContent="Go to Payment";
+btn.onclick=()=>page("Deposit");
+
+box.append(notice,btn);
+return;
+}
+
 box.textContent="Loading tasks...";
 
 try{
@@ -1066,12 +1093,14 @@ box.textContent=e.message;
 
 }
 
+
 async function reviewDeposit(id,status,button){
 
 if(!isAdmin)return;
 
-if(status==="approved"&&!confirm("Have you independently confirmed that this money arrived in your OPay account?"))
-return;
+if(status==="approved"&&!confirm(
+"Have you independently confirmed that this money arrived in your account?"
+))return;
 
 button.disabled=true;
 button.textContent="Processing...";
@@ -1084,36 +1113,56 @@ await db.runTransaction(async tx=>{
 
 const snap=await tx.get(ref);
 
-if(!snap.exists||snap.data().status!=="pending")
+if(!snap.exists||snap.data().status!=="pending"){
 throw new Error("This payment has already been reviewed.");
+}
 
+const payment=snap.data();
+
+const userRef=db.collection("users").doc(payment.userId);
+const userSnap=await tx.get(userRef);
+
+if(!userSnap.exists){
+throw new Error("User account not found.");
+}
+
+// Update payment status
 tx.update(ref,{
-
 status:status,
-
 reviewedAt:firebase.firestore.FieldValue.serverTimestamp(),
-
 reviewedBy:currentUser.uid
+});
+
+// Unlock tasks ONLY after admin approval
+if(status==="approved"){
+tx.update(userRef,{
+taskAccess:true
+});
+}
 
 });
 
-});
-
-alert("Payment proof marked "+status+".");
+alert(status==="approved"
+?"Payment approved. User tasks unlocked."
+:"Payment rejected. User tasks remain locked."
+);
 
 await loadDepositAdmin();
-await loadDepositHistory();
+await loadAdmin();
 
 }catch(e){
 
 button.disabled=false;
-button.textContent=status==="approved"?"Mark as verified":"Reject proof";
+button.textContent=status==="approved"
+?"Mark as verified"
+:"Reject proof";
 
 alert(e.message);
 
 }
 
 }
+
 
 /* WITHDRAWAL REQUEST */
 
