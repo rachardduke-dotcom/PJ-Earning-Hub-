@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PJ-EARNING HUB</title>
+
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#07110d;color:white}
@@ -28,8 +28,10 @@ h3{color:#20c978}
 .notice{background:#263b30;padding:12px;border-radius:8px;color:#ffe49a;font-size:13px}
 .receipt{width:100%;max-height:300px;object-fit:contain}
 hr{border:1px solid #244d38}
+.locked{background:#342d18;border:1px solid #a68b37;padding:15px;border-radius:10px;margin:10px 0}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -38,143 +40,264 @@ hr{border:1px solid #244d38}
 </header>
 
 <main>
+
+<!-- AUTHENTICATION -->
+
 <section id="auth">
+
 <div class="card">
+
 <h3>Welcome</h3>
 
 <div id="loginBox">
 <h3>Login</h3>
+
 <input id="loginEmail" type="email" placeholder="Email address">
 <input id="loginPassword" type="password" placeholder="Password">
+
 <button id="loginButton" onclick="login()">Login</button>
+
 <p class="small">Don't have an account?</p>
+
 <button class="secondary" onclick="showSignup()">Create account</button>
 </div>
 
 <div id="signupBox" class="hidden">
+
 <h3>Create account</h3>
+
 <input id="regName" placeholder="Full name">
 <input id="regEmail" type="email" placeholder="Email address">
 <input id="regPassword" type="password" placeholder="Create password">
+
 <button id="signupButton" onclick="signup()">Register</button>
+
 <button class="secondary" onclick="showLogin()">Back to login</button>
+
 </div>
 
 <p id="authMessage" class="small"></p>
+
 </div>
 </section>
+
+
+<!-- DASHBOARD -->
 
 <section id="dashboard" class="hidden">
 
 <div class="card">
+
 <h3 id="welcome">Dashboard</h3>
+
 <p>Balance: ₦<strong class="green" id="balance">0</strong></p>
+
+<p id="taskAccessStatus" class="small"></p>
+
 </div>
 
+
+<!-- NAVIGATION -->
+
 <div class="nav">
+
 <button onclick="page('tasks')">Tasks</button>
 <button onclick="page('Deposit')">Payment</button>
 <button onclick="page('withdraw')">Withdraw</button>
 <button onclick="page('profile')">Profile</button>
 <button onclick="page('history')">History</button>
-<button id="adminButton" class="hidden" onclick="page('admin')">Admin</button>
+
+<button id="adminButton" class="hidden" onclick="page('admin')">
+Admin
+</button>
+
 <button class="secondary" onclick="logout()">Logout</button>
+
 </div>
+
+
+<!-- TASKS PAGE -->
 
 <div id="tasksPage" class="card">
+
 <h3>Available Tasks</h3>
+
 <div id="taskList">Loading tasks...</div>
+
 </div>
 
+
+<!-- DEPOSIT PAGE -->
+
 <div id="DepositPage" class="card hidden">
-<h3>Payment / Support</h3>
+
+<h3>Deposit / Unlock Tasks</h3>
+
 <div class="notice">
-Payments are optional and do not unlock or restrict access to tasks. Only send money for a clearly explained, legitimate purpose. Verify transfers independently.
+You must submit your deposit payment proof and wait for admin approval before accessing available tasks.
+
+Your tasks will remain locked until your payment is verified.
 </div>
 
 <h3>Payment Details</h3>
+
 <p>Bank: <strong>money master</strong></p>
+
 <p>Account Number:</p>
+
 <h2 class="green">9066506279</h2>
+
 <p>Account Name: <strong>Jackson</strong></p>
+
 <button onclick="copyDepositAccount()">Copy Account Number</button>
 
 <hr>
-<h3>Submit Payment Proof (optional)</h3>
-<input id="DepositAmount" type="number" min="1" placeholder="Amount sent (₦)">
-<label class="small">Select payment screenshot</label>
+
+<h3>Submit Deposit</h3>
+
+<input id="DepositAmount" type="number" min="1" placeholder="Amount deposited (₦)">
+
+<label class="small">Upload payment screenshot</label>
+
 <input id="DepositScreenshot" type="file" accept="image/*">
-<button id="DepositSubmitButton" onclick="submitDeposit()">Submit Payment Proof</button>
+
+<button id="DepositSubmitButton" onclick="submitDeposit()">
+Submit Deposit for Approval
+</button>
+
 <p id="DepositMessage" class="small"></p>
 
 <hr>
-<h3>My Payment History</h3>
-<div id="DepositHistory">No payment submissions yet.</div>
+
+<h3>My Deposit History</h3>
+
+<div id="DepositHistory">No deposit submissions yet.</div>
+
 </div>
+
+
+<!-- WITHDRAWAL PAGE -->
 
 <div id="withdrawPage" class="card hidden">
+
 <h3>Withdraw Funds</h3>
+
 <p>Available balance: ₦<strong id="withdrawBalance">0</strong></p>
+
 <input id="withdrawAmount" type="number" min="1" placeholder="Withdrawal amount">
+
 <input id="withdrawBank" placeholder="Bank name">
+
 <input id="withdrawAccountName" placeholder="Account name">
+
 <input id="withdrawAccountNumber" type="text" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
-<button id="withdrawButton" onclick="requestWithdrawal()">Submit Withdrawal Request</button>
+
+<button id="withdrawButton" onclick="requestWithdrawal()">
+Submit Withdrawal Request
+</button>
+
 <p id="withdrawMessage" class="small"></p>
-<div class="notice">Withdrawal requests are reviewed by the admin. Payment is made separately by bank transfer.</div>
-<hr>
-<h3>My Withdrawal History</h3>
-<div id="withdrawHistory">No withdrawal requests yet.</div>
+
+<div class="notice">
+Withdrawal requests are reviewed by the admin. Payment is made separately by bank transfer.
 </div>
+
+<hr>
+
+<h3>My Withdrawal History</h3>
+
+<div id="withdrawHistory">No withdrawal requests yet.</div>
+
+</div>
+
+
+<!-- PROFILE PAGE -->
 
 <div id="profilePage" class="card hidden">
+
 <h3>My Profile</h3>
+
 <p id="profileEmail" class="small"></p>
+
 <input id="profileName" placeholder="Full name">
+
 <button onclick="saveProfile()">Save profile</button>
+
 </div>
+
+
+<!-- HISTORY PAGE -->
 
 <div id="historyPage" class="card hidden">
+
 <h3>My Task Activity</h3>
+
 <div id="historyList"></div>
+
 </div>
 
+
+<!-- ADMIN PAGE -->
+
 <div id="adminPage" class="card hidden">
+
 <h3>Admin Dashboard</h3>
+
 <p class="small">Admin access is checked using your Firebase UID.</p>
+
 <hr>
 
 <h3>Post New Task</h3>
+
 <input id="newTaskTitle" placeholder="Task title">
+
 <textarea id="newTaskDescription" placeholder="Task instructions"></textarea>
+
 <input id="newTaskReward" type="number" min="0" placeholder="Task reward (₦)">
+
 <button onclick="postTask()">Publish Task</button>
 
 <hr>
+
 <h3>Manage Tasks</h3>
+
 <div id="adminTasks"></div>
 
 <hr>
+
 <h3>Submitted Task Proofs</h3>
+
 <div id="submissionList"></div>
 
 <hr>
-<h3>Payment Proofs to Review</h3>
+
+<h3>Deposit Proofs to Review</h3>
+
 <div id="depositAdminList"></div>
 
 <hr>
+
 <h3>Withdrawal Requests</h3>
+
 <div id="withdrawalAdminList"></div>
+
 </div>
+
 </section>
+
 </main>
+
+
+<!-- FIREBASE -->
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 
+
 <script>
+
 const firebaseConfig={
 apiKey:"AIzaSyC6O2RSO27tCfq4F8qkyijAdgsIqZrlmVk",
 authDomain:"pj-earning-hub.firebaseapp.com",
@@ -209,19 +332,27 @@ function money(value){
 return Number(value||0).toLocaleString("en-NG");
 }
 
-/* AUTH */
+
+/* AUTHENTICATION */
 
 function showSignup(){
+
 el("loginBox").classList.add("hidden");
 el("signupBox").classList.remove("hidden");
+
 message("authMessage","");
+
 }
 
 function showLogin(){
+
 el("signupBox").classList.add("hidden");
 el("loginBox").classList.remove("hidden");
+
 message("authMessage","");
+
 }
+
 
 async function signup(){
 
@@ -230,11 +361,15 @@ const email=el("regEmail").value.trim();
 const password=el("regPassword").value;
 
 if(!name||!email||password.length<6){
+
 message("authMessage","Enter your details correctly. Password must have at least 6 characters.");
+
 return;
+
 }
 
 const btn=el("signupButton");
+
 btn.disabled=true;
 btn.textContent="Creating account...";
 
@@ -243,23 +378,35 @@ try{
 const result=await auth.createUserWithEmailAndPassword(email,password);
 
 await db.collection("users").doc(result.user.uid).set({
+
 name,
 email,
+
 demoPoints:0,
-taskAccess:true,
+
+// IMPORTANT: NEW USERS START LOCKED
+
+taskAccess:false,
+
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
+
 });
 
-message("authMessage","Account created successfully.");
+message("authMessage","Account created successfully. Make a deposit to unlock tasks.");
 
 }catch(e){
+
 message("authMessage",e.message);
+
 }finally{
+
 btn.disabled=false;
 btn.textContent="Register";
+
 }
 
 }
+
 
 async function login(){
 
@@ -267,31 +414,44 @@ const email=el("loginEmail").value.trim();
 const password=el("loginPassword").value;
 
 if(!email||!password){
+
 message("authMessage","Enter your email address and password.");
+
 return;
+
 }
 
 const btn=el("loginButton");
+
 btn.disabled=true;
 btn.textContent="Logging in...";
 
 try{
 
 await auth.signInWithEmailAndPassword(email,password);
+
 message("authMessage","");
 
 }catch(e){
+
 message("authMessage",e.message);
+
 }finally{
+
 btn.disabled=false;
 btn.textContent="Login";
+
 }
 
 }
+
 
 function logout(){
+
 auth.signOut().catch(e=>alert(e.message));
+
 }
+
 
 /* AUTH STATE */
 
@@ -300,20 +460,26 @@ auth.onAuthStateChanged(async user=>{
 currentUser=user;
 
 if(!user){
+
 isAdmin=false;
 myProfile={};
+
 el("auth").classList.remove("hidden");
 el("dashboard").classList.add("hidden");
+
 return;
+
 }
 
 isAdmin=user.uid===ADMIN_UID;
 
 el("auth").classList.add("hidden");
 el("dashboard").classList.remove("hidden");
+
 el("adminButton").classList.toggle("hidden",!isAdmin);
 
 try{
+
 await loadProfile();
 await loadTasks();
 await loadHistory();
@@ -323,11 +489,13 @@ await loadWithdrawalHistory();
 if(isAdmin) await loadAdmin();
 
 }catch(e){
+
 console.error("Dashboard loading error:",e);
-message("authMessage","You are signed in, but some account information could not load: "+e.message);
+
 }
 
 });
+
 
 /* PROFILE */
 
@@ -336,16 +504,23 @@ async function loadProfile(){
 if(!currentUser)return;
 
 const ref=db.collection("users").doc(currentUser.uid);
+
 let snap=await ref.get();
 
 if(!snap.exists){
 
 await ref.set({
+
 name:currentUser.displayName||currentUser.email||"User",
 email:currentUser.email||"",
 demoPoints:0,
-taskAccess:true,
+
+// DEFAULT LOCKED
+
+taskAccess:false,
+
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
+
 });
 
 snap=await ref.get();
@@ -354,16 +529,37 @@ snap=await ref.get();
 
 myProfile=snap.data()||{};
 
-if(myProfile.taskAccess!==true){
-myProfile.taskAccess=true;
-}
-
 el("welcome").textContent="Welcome, "+(myProfile.name||"User");
+
 el("balance").textContent=money(myProfile.demoPoints||0);
+
 el("profileEmail").textContent=currentUser.email||"";
+
 el("profileName").value=myProfile.name||"";
 
+updateTaskAccessStatus();
+
 }
+
+
+function updateTaskAccessStatus(){
+
+const unlocked=isAdmin||myProfile.taskAccess===true;
+
+if(unlocked){
+
+el("taskAccessStatus").textContent="Task access: UNLOCKED";
+el("taskAccessStatus").className="green";
+
+}else{
+
+el("taskAccessStatus").textContent="Task access: LOCKED - Deposit approval required.";
+el("taskAccessStatus").className="small";
+
+}
+
+}
+
 
 async function saveProfile(){
 
@@ -373,38 +569,51 @@ if(!name)return alert("Enter your name.");
 
 try{
 
-await db.collection("users").doc(currentUser.uid).set({name},{merge:true});
+await db.collection("users").doc(currentUser.uid).set({
+
+name
+
+},{merge:true});
+
 await loadProfile();
+
 alert("Profile updated.");
 
 }catch(e){
+
 alert(e.message);
+
 }
 
 }
+
 
 /* PAGE NAVIGATION */
 
 function page(name){
 
 [
+
 "tasksPage",
 "DepositPage",
 "withdrawPage",
 "profilePage",
 "historyPage",
 "adminPage"
+
 ].forEach(id=>el(id).classList.add("hidden"));
 
 if(name==="admin"&&!isAdmin)return;
 
 const ids={
+
 tasks:"tasksPage",
 Deposit:"DepositPage",
 withdraw:"withdrawPage",
 profile:"profilePage",
 history:"historyPage",
 admin:"adminPage"
+
 };
 
 if(!ids[name])return;
@@ -412,28 +621,62 @@ if(!ids[name])return;
 el(ids[name]).classList.remove("hidden");
 
 if(name==="tasks")loadTasks();
+
 if(name==="history")loadHistory();
+
 if(name==="Deposit")loadDepositHistory();
 
 if(name==="withdraw"){
+
 el("withdrawBalance").textContent=money(myProfile.demoPoints||0);
+
 loadWithdrawalHistory();
+
 }
 
 if(name==="admin")loadAdmin();
 
 }
 
-/* TASKS */
+
+/* TASKS - DEPOSIT APPROVAL REQUIRED */
 
 async function loadTasks(){
 
 const box=el("taskList");
+
 box.innerHTML="";
 
 if(!currentUser){
+
 box.textContent="Please log in first.";
+
 return;
+
+}
+
+if(!isAdmin&&myProfile.taskAccess!==true){
+
+box.innerHTML=`
+
+<div class="locked">
+
+<h3>🔒 Tasks Locked</h3>
+
+<p>You need to make a deposit before accessing available tasks.</p>
+
+<p>Your deposit must be verified and approved by the administrator.</p>
+
+<p class="small">After approval, your tasks will automatically unlock.</p>
+
+<button onclick="page('Deposit')">Make Deposit to Unlock Tasks</button>
+
+</div>
+
+`;
+
+return;
+
 }
 
 box.textContent="Loading tasks...";
@@ -446,8 +689,11 @@ const snap=await db.collection("tasks")
 box.innerHTML="";
 
 if(snap.empty){
+
 box.textContent="No tasks available yet.";
+
 return;
+
 }
 
 for(const doc of snap.docs){
@@ -479,17 +725,31 @@ btn.textContent="Submit Task";
 btn.onclick=()=>submitTask(doc.id,proof.value,screenshot,btn);
 
 div.append(title,desc,reward,proof,screenshot,btn);
+
 box.appendChild(div);
 
 }
 
 }catch(e){
+
 box.textContent=e.message;
+
 }
 
 }
+
+
+/* SUBMIT TASK */
 
 async function submitTask(taskId,proof,fileInput,button){
+
+if(!isAdmin&&myProfile.taskAccess!==true){
+
+alert("Your tasks are locked. Deposit and wait for admin approval.");
+
+return;
+
+}
 
 if(!proof.trim())return alert("Enter your proof first.");
 
@@ -513,6 +773,7 @@ if(file.size>5*1024*1024)
 throw new Error("Image must not exceed 5MB.");
 
 const path="taskProofs/"+currentUser.uid+"/"+Date.now();
+
 const upload=await storage.ref(path).put(file);
 
 imageUrl=await upload.ref.getDownloadURL();
@@ -527,6 +788,7 @@ email:currentUser.email||"",
 proof:proof.trim(),
 imageUrl,
 status:"pending",
+
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
 
 });
@@ -540,6 +802,7 @@ button.textContent="Submitted";
 }catch(e){
 
 alert(e.message);
+
 button.disabled=false;
 button.textContent="Submit Task";
 
@@ -547,13 +810,15 @@ button.textContent="Submit Task";
 
 }
 
-/* HISTORY */
+
+/* TASK HISTORY */
 
 async function loadHistory(){
 
 if(!currentUser)return;
 
 const box=el("historyList");
+
 box.textContent="Loading...";
 
 try{
@@ -568,7 +833,9 @@ snap.forEach(d=>{
 const s=d.data();
 
 const div=document.createElement("div");
+
 div.className="item";
+
 div.textContent="Task: "+s.taskId+" | Status: "+s.status;
 
 box.appendChild(div);
@@ -576,14 +843,19 @@ box.appendChild(div);
 });
 
 if(!box.children.length){
+
 box.textContent="No activity yet.";
+
 }
 
 }catch(e){
+
 box.textContent=e.message;
+
 }
 
 }
+
 
 /* ADMIN POST TASK */
 
@@ -592,19 +864,27 @@ async function postTask(){
 if(!isAdmin)return;
 
 const title=el("newTaskTitle").value.trim();
+
 const description=el("newTaskDescription").value.trim();
+
 const reward=Number(el("newTaskReward").value);
 
-if(!title||!description||!Number.isFinite(reward)||reward<0)
+if(!title||!description||!Number.isFinite(reward)||reward<0){
+
 return alert("Fill all task details correctly.");
+
+}
 
 try{
 
 await db.collection("tasks").add({
+
 title,
 description,
 reward,
+
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
+
 });
 
 el("newTaskTitle").value="";
@@ -617,10 +897,13 @@ await loadTasks();
 await loadAdmin();
 
 }catch(e){
+
 alert(e.message);
+
 }
 
 }
+
 
 /* ADMIN DASHBOARD */
 
@@ -629,6 +912,7 @@ async function loadAdmin(){
 if(!isAdmin)return;
 
 const taskBox=el("adminTasks");
+
 const submissionBox=el("submissionList");
 
 taskBox.textContent="Loading...";
@@ -645,11 +929,15 @@ if(tasks.empty)taskBox.textContent="No tasks posted.";
 tasks.forEach(d=>{
 
 const div=document.createElement("div");
+
 div.className="item";
+
 div.textContent=(d.data().title||"Task")+" ";
 
 const btn=document.createElement("button");
+
 btn.className="danger";
+
 btn.textContent="Delete Task";
 
 btn.onclick=async()=>{
@@ -657,11 +945,16 @@ btn.onclick=async()=>{
 if(confirm("Delete this task?")){
 
 try{
+
 await db.collection("tasks").doc(d.id).delete();
+
 await loadAdmin();
 await loadTasks();
+
 }catch(e){
+
 alert(e.message);
+
 }
 
 }
@@ -669,9 +962,11 @@ alert(e.message);
 };
 
 div.appendChild(btn);
+
 taskBox.appendChild(div);
 
 });
+
 
 /* ALL SUBMISSIONS */
 
@@ -680,7 +975,9 @@ const subs=await db.collection("submissions").get();
 submissionBox.innerHTML="";
 
 if(subs.empty){
+
 submissionBox.textContent="No task submissions.";
+
 }
 
 subs.forEach(d=>{
@@ -688,6 +985,7 @@ subs.forEach(d=>{
 const s=d.data();
 
 const div=document.createElement("div");
+
 div.className="item";
 
 const info=document.createElement("p");
@@ -703,6 +1001,7 @@ div.appendChild(info);
 if(s.imageUrl){
 
 const img=document.createElement("img");
+
 img.src=s.imageUrl;
 img.className="receipt";
 img.alt="Task proof screenshot";
@@ -714,12 +1013,16 @@ div.appendChild(img);
 if(s.status==="pending"){
 
 const approve=document.createElement("button");
+
 approve.textContent="Approve Task";
+
 approve.onclick=()=>approveProof(d.id,s,approve);
 
 const reject=document.createElement("button");
+
 reject.textContent="Reject Task";
 reject.className="danger";
+
 reject.onclick=()=>rejectProof(d.id,reject);
 
 div.append(approve,reject);
@@ -727,7 +1030,9 @@ div.append(approve,reject);
 }else{
 
 const status=document.createElement("p");
+
 status.className="green";
+
 status.textContent=s.status==="approved"?"APPROVED":"REJECTED";
 
 div.appendChild(status);
@@ -738,17 +1043,20 @@ submissionBox.appendChild(div);
 
 });
 
+
 await loadDepositAdmin();
 await loadWithdrawalAdmin();
 
 }catch(e){
 
 taskBox.textContent=e.message;
+
 submissionBox.textContent=e.message;
 
 }
 
 }
+
 
 /* APPROVE TASK */
 
@@ -757,12 +1065,15 @@ async function approveProof(id,s,button){
 if(!isAdmin||button.disabled)return;
 
 button.disabled=true;
+
 button.textContent="Processing...";
 
 try{
 
 const submissionRef=db.collection("submissions").doc(id);
+
 const taskRef=db.collection("tasks").doc(s.taskId);
+
 const userRef=db.collection("users").doc(s.userId);
 
 await db.runTransaction(async tx=>{
@@ -770,36 +1081,49 @@ await db.runTransaction(async tx=>{
 const sub=await tx.get(submissionRef);
 
 if(!sub.exists||sub.data().status!=="pending"){
+
 throw new Error("This task has already been handled.");
+
 }
 
 const task=await tx.get(taskRef);
 
 if(!task.exists){
+
 throw new Error("Task no longer exists.");
+
 }
 
 const user=await tx.get(userRef);
 
 if(!user.exists){
+
 throw new Error("User account not found.");
+
 }
 
 const reward=Number(task.data().reward)||0;
+
 const balance=Number(user.data().demoPoints)||0;
 
 tx.update(submissionRef,{
+
 status:"approved",
+
 approvedAt:firebase.firestore.FieldValue.serverTimestamp()
+
 });
 
 tx.update(userRef,{
+
 demoPoints:balance+reward
+
 });
 
 });
 
 button.textContent="APPROVED";
+
 alert("Task approved. Reward added once.");
 
 await loadAdmin();
@@ -809,18 +1133,22 @@ await loadHistory();
 }catch(e){
 
 button.disabled=false;
+
 button.textContent="Approve Task";
+
 alert(e.message);
 
 }
 
 }
 
+
 /* REJECT TASK */
 
 async function rejectProof(id,button){
 
 if(!isAdmin)return;
+
 if(!confirm("Reject this task proof?"))return;
 
 button.disabled=true;
@@ -833,12 +1161,18 @@ await db.runTransaction(async tx=>{
 
 const snap=await tx.get(ref);
 
-if(!snap.exists||snap.data().status!=="pending")
+if(!snap.exists||snap.data().status!=="pending"){
+
 throw new Error("Already handled.");
 
+}
+
 tx.update(ref,{
+
 status:"rejected",
+
 reviewedAt:firebase.firestore.FieldValue.serverTimestamp()
+
 });
 
 });
@@ -849,13 +1183,15 @@ await loadHistory();
 }catch(e){
 
 button.disabled=false;
+
 alert(e.message);
 
 }
 
 }
 
-/* PAYMENT RECORDS */
+
+/* DEPOSIT ACCOUNT */
 
 async function copyDepositAccount(){
 
@@ -864,66 +1200,103 @@ const account="9066506279";
 try{
 
 if(navigator.clipboard&&window.isSecureContext){
+
 await navigator.clipboard.writeText(account);
+
 alert("Account number copied.");
+
 }else{
+
 window.prompt("Copy account number:",account);
+
 }
 
 }catch(e){
+
 window.prompt("Copy account number:",account);
+
 }
 
 }
+
+
+/* SUBMIT DEPOSIT */
 
 async function submitDeposit(){
 
 if(!currentUser)return alert("Please log in first.");
 
 const amount=Number(el("DepositAmount").value);
+
 const file=el("DepositScreenshot").files[0];
 
-if(!Number.isFinite(amount)||amount<=0)
-return alert("Enter the amount sent.");
+if(!Number.isFinite(amount)||amount<=0){
 
-if(!file)return alert("Upload your payment screenshot.");
+return alert("Enter the amount deposited.");
 
-if(!file.type.startsWith("image/"))
+}
+
+if(!file){
+
+return alert("Upload your payment screenshot.");
+
+}
+
+if(!file.type.startsWith("image/")){
+
 return alert("Select an image file.");
 
-if(file.size>5*1024*1024)
+}
+
+if(file.size>5*1024*1024){
+
 return alert("Image must not exceed 5MB.");
+
+}
 
 const btn=el("DepositSubmitButton");
 
 if(btn.disabled)return;
 
 btn.disabled=true;
+
 btn.textContent="Uploading...";
 
 try{
 
 const id=Date.now().toString();
+
 const path="depositReceipts/"+currentUser.uid+"/"+id;
 
 const upload=await storage.ref(path).put(file);
+
 const imageUrl=await upload.ref.getDownloadURL();
 
 await db.collection("deposits").add({
 
 userId:currentUser.uid,
+
 email:currentUser.email||"",
+
 amount,
+
 imageUrl,
+
 storagePath:path,
+
 status:"pending",
+
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
 
 });
 
-message("DepositMessage","Payment proof submitted. Awaiting admin review.");
+message(
+"DepositMessage",
+"Deposit submitted successfully. Your tasks will unlock after admin approval."
+);
 
 el("DepositAmount").value="";
+
 el("DepositScreenshot").value="";
 
 await loadDepositHistory();
@@ -935,17 +1308,22 @@ alert("Submission failed: "+e.message);
 }finally{
 
 btn.disabled=false;
-btn.textContent="Submit Payment Proof";
+
+btn.textContent="Submit Deposit for Approval";
 
 }
 
 }
+
+
+/* USER DEPOSIT HISTORY */
 
 async function loadDepositHistory(){
 
 if(!currentUser)return;
 
 const box=el("DepositHistory");
+
 box.textContent="Loading...";
 
 try{
@@ -960,41 +1338,58 @@ snap.forEach(d=>{
 const p=d.data();
 
 const div=document.createElement("div");
+
 div.className="item";
 
 const info=document.createElement("p");
-info.textContent="Amount: ₦"+money(p.amount)+" | Status: "+p.status;
+
+info.textContent=
+"Amount: ₦"+money(p.amount)+
+" | Status: "+p.status;
 
 div.appendChild(info);
 
 if(p.imageUrl){
+
 const img=document.createElement("img");
+
 img.src=p.imageUrl;
+
 img.alt="Payment receipt";
+
 img.className="receipt";
+
 div.appendChild(img);
+
 }
 
 box.appendChild(div);
 
 });
 
-if(!box.children.length)
-box.textContent="No payment submissions yet.";
+if(!box.children.length){
+
+box.textContent="No deposit submissions yet.";
+
+}
 
 }catch(e){
+
 box.textContent=e.message;
-}
 
 }
 
-/* ADMIN PAYMENT REVIEW */
+}
+
+
+/* ADMIN DEPOSIT REVIEW */
 
 async function loadDepositAdmin(){
 
 if(!isAdmin)return;
 
 const box=el("depositAdminList");
+
 box.textContent="Loading...";
 
 try{
@@ -1005,8 +1400,11 @@ const snap=await db.collection("deposits")
 box.innerHTML="";
 
 if(snap.empty){
-box.textContent="No pending payment proofs.";
+
+box.textContent="No pending deposit proofs.";
+
 return;
+
 }
 
 snap.forEach(d=>{
@@ -1014,87 +1412,164 @@ snap.forEach(d=>{
 const p=d.data();
 
 const div=document.createElement("div");
+
 div.className="item";
 
 const info=document.createElement("p");
-info.textContent="User: "+p.email+" | Amount: ₦"+money(p.amount);
+
+info.textContent=
+"User: "+p.email+
+" | Amount: ₦"+money(p.amount);
 
 const img=document.createElement("img");
+
 img.src=p.imageUrl;
-img.alt="Payment receipt";
+
+img.alt="Deposit receipt";
+
 img.className="receipt";
 
 const warning=document.createElement("p");
+
 warning.className="small";
-warning.textContent="Independently verify any transfer before marking it as received.";
+
+warning.textContent=
+"Verify the actual transfer before approving this deposit.";
 
 const approve=document.createElement("button");
-approve.textContent="Mark as received";
+
+approve.textContent="Approve Deposit & Unlock Tasks";
+
 approve.onclick=()=>reviewDeposit(d.id,"approved",approve);
 
 const reject=document.createElement("button");
+
 reject.className="danger";
-reject.textContent="Reject proof";
+
+reject.textContent="Reject Deposit";
+
 reject.onclick=()=>reviewDeposit(d.id,"rejected",reject);
 
 div.append(info,img,warning,approve,reject);
+
 box.appendChild(div);
 
 });
 
 }catch(e){
+
 box.textContent=e.message;
+
 }
 
 }
+
+
+/* APPROVE OR REJECT DEPOSIT */
 
 async function reviewDeposit(id,status,button){
 
 if(!isAdmin)return;
 
 if(status==="approved"&&!confirm(
-"Have you independently confirmed that this money arrived in your account?"
+"Have you independently confirmed that this deposit arrived in your account? Approving will unlock the user's tasks."
 ))return;
 
+if(button.disabled)return;
+
 button.disabled=true;
+
 button.textContent="Processing...";
 
 try{
 
-const ref=db.collection("deposits").doc(id);
+const depositRef=db.collection("deposits").doc(id);
 
 await db.runTransaction(async tx=>{
 
-const snap=await tx.get(ref);
+const snap=await tx.get(depositRef);
 
 if(!snap.exists||snap.data().status!=="pending"){
-throw new Error("This payment has already been reviewed.");
+
+throw new Error("This deposit has already been reviewed.");
+
 }
 
-tx.update(ref,{
+const deposit=snap.data();
+
+const userRef=db.collection("users").doc(deposit.userId);
+
+const userSnap=await tx.get(userRef);
+
+if(!userSnap.exists){
+
+throw new Error("User account not found.");
+
+}
+
+if(status==="approved"){
+
+// APPROVED DEPOSIT UNLOCKS USER TASKS
+
+tx.update(userRef,{
+
+taskAccess:true,
+
+taskAccessApprovedAt:
+firebase.firestore.FieldValue.serverTimestamp()
+
+});
+
+}
+
+// REJECTED DEPOSIT DOES NOT UNLOCK TASKS
+
+tx.update(depositRef,{
+
 status:status,
-reviewedAt:firebase.firestore.FieldValue.serverTimestamp(),
+
+reviewedAt:
+firebase.firestore.FieldValue.serverTimestamp(),
+
 reviewedBy:currentUser.uid
-});
 
 });
 
-alert(status==="approved"
-?"Payment marked as received."
-:"Payment proof rejected."
-);
+});
+
+if(status==="approved"){
+
+alert("Deposit approved successfully. User tasks are now UNLOCKED.");
+
+}else{
+
+alert("Deposit rejected. User tasks remain locked unless previously unlocked by another approved deposit.");
+
+}
 
 await loadDepositAdmin();
+
+await loadDepositHistory();
+
+await loadProfile();
+
+await loadTasks();
 
 }catch(e){
 
 button.disabled=false;
-button.textContent=status==="approved"?"Mark as received":"Reject proof";
+
+button.textContent=
+status==="approved"?
+"Approve Deposit & Unlock Tasks":
+"Reject Deposit";
+
 alert(e.message);
 
 }
 
 }
+
 
 /* WITHDRAWAL REQUEST */
 
@@ -1103,48 +1578,75 @@ async function requestWithdrawal(){
 if(!currentUser)return;
 
 const amount=Number(el("withdrawAmount").value);
+
 const bank=el("withdrawBank").value.trim();
+
 const accountName=el("withdrawAccountName").value.trim();
+
 const accountNumber=el("withdrawAccountNumber").value.trim();
 
-if(!Number.isFinite(amount)||amount<=0)
+if(!Number.isFinite(amount)||amount<=0){
+
 return alert("Enter a valid withdrawal amount.");
 
-if(!bank||!accountName||!accountNumber)
+}
+
+if(!bank||!accountName||!accountNumber){
+
 return alert("Complete your bank details.");
 
-if(!/^\d{10}$/.test(accountNumber))
+}
+
+if(!/^\d{10}$/.test(accountNumber)){
+
 return alert("Enter a valid 10-digit account number.");
+
+}
 
 const button=el("withdrawButton");
 
 if(button.disabled)return;
 
 button.disabled=true;
+
 button.textContent="Submitting...";
 
 try{
 
 const userRef=db.collection("users").doc(currentUser.uid);
+
 const snap=await userRef.get();
 
-if(!snap.exists)
+if(!snap.exists){
+
 throw new Error("User account not found.");
+
+}
 
 const balance=Number(snap.data().demoPoints)||0;
 
-if(amount>balance)
+if(amount>balance){
+
 throw new Error("Insufficient balance.");
+
+}
 
 await db.collection("withdrawals").add({
 
 userId:currentUser.uid,
+
 email:currentUser.email||"",
+
 amount,
+
 bank,
+
 accountName,
+
 accountNumber,
+
 status:"pending",
+
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
 
 });
@@ -1165,11 +1667,13 @@ alert(e.message);
 }finally{
 
 button.disabled=false;
+
 button.textContent="Submit Withdrawal Request";
 
 }
 
 }
+
 
 /* USER WITHDRAWAL HISTORY */
 
@@ -1178,6 +1682,7 @@ async function loadWithdrawalHistory(){
 if(!currentUser)return;
 
 const box=el("withdrawHistory");
+
 box.textContent="Loading...";
 
 try{
@@ -1192,6 +1697,7 @@ snap.forEach(d=>{
 const w=d.data();
 
 const div=document.createElement("div");
+
 div.className="item";
 
 div.textContent=
@@ -1203,14 +1709,20 @@ box.appendChild(div);
 
 });
 
-if(!box.children.length)
+if(!box.children.length){
+
 box.textContent="No withdrawal requests yet.";
 
+}
+
 }catch(e){
+
 box.textContent=e.message;
+
 }
 
 }
+
 
 /* ADMIN WITHDRAWAL REVIEW */
 
@@ -1219,6 +1731,7 @@ async function loadWithdrawalAdmin(){
 if(!isAdmin)return;
 
 const box=el("withdrawalAdminList");
+
 box.textContent="Loading...";
 
 try{
@@ -1229,8 +1742,11 @@ const snap=await db.collection("withdrawals")
 box.innerHTML="";
 
 if(snap.empty){
+
 box.textContent="No pending withdrawal requests.";
+
 return;
+
 }
 
 snap.forEach(d=>{
@@ -1238,6 +1754,7 @@ snap.forEach(d=>{
 const w=d.data();
 
 const div=document.createElement("div");
+
 div.className="item";
 
 const info=document.createElement("p");
@@ -1250,28 +1767,40 @@ info.textContent=
 " | Account number: "+w.accountNumber;
 
 const warning=document.createElement("p");
+
 warning.className="small";
-warning.textContent="Verify that the transfer has actually been completed before approving.";
+
+warning.textContent=
+"Verify that the transfer has actually been completed before approving.";
 
 const approve=document.createElement("button");
+
 approve.textContent="Approve Withdrawal";
+
 approve.onclick=()=>approveWithdrawal(d.id,approve);
 
 const reject=document.createElement("button");
+
 reject.textContent="Reject Withdrawal";
+
 reject.className="danger";
+
 reject.onclick=()=>rejectWithdrawal(d.id,reject);
 
 div.append(info,warning,approve,reject);
+
 box.appendChild(div);
 
 });
 
 }catch(e){
+
 box.textContent=e.message;
+
 }
 
 }
+
 
 /* APPROVE WITHDRAWAL */
 
@@ -1279,10 +1808,10 @@ async function approveWithdrawal(id,button){
 
 if(!isAdmin)return;
 
-if(!confirm("Have you successfully transferred this money to the user's bank account?"))
-return;
+if(!confirm("Have you successfully transferred this money to the user's bank account?"))return;
 
 button.disabled=true;
+
 button.textContent="Processing...";
 
 try{
@@ -1293,29 +1822,46 @@ await db.runTransaction(async tx=>{
 
 const w=await tx.get(ref);
 
-if(!w.exists||w.data().status!=="pending")
+if(!w.exists||w.data().status!=="pending"){
+
 throw new Error("This withdrawal has already been processed.");
 
+}
+
 const userRef=db.collection("users").doc(w.data().userId);
+
 const u=await tx.get(userRef);
 
-if(!u.exists)
+if(!u.exists){
+
 throw new Error("User account not found.");
 
+}
+
 const amount=Number(w.data().amount);
+
 const balance=Number(u.data().demoPoints)||0;
 
-if(!Number.isFinite(amount)||amount<=0||amount>balance)
+if(!Number.isFinite(amount)||amount<=0||amount>balance){
+
 throw new Error("Insufficient available balance.");
 
+}
+
 tx.update(userRef,{
+
 demoPoints:balance-amount
+
 });
 
 tx.update(ref,{
+
 status:"approved",
+
 reviewedAt:firebase.firestore.FieldValue.serverTimestamp(),
+
 reviewedBy:currentUser.uid
+
 });
 
 });
@@ -1323,18 +1869,23 @@ reviewedBy:currentUser.uid
 alert("Withdrawal approved. Balance deducted once.");
 
 await loadWithdrawalAdmin();
+
 await loadProfile();
+
 await loadWithdrawalHistory();
 
 }catch(e){
 
 button.disabled=false;
+
 button.textContent="Approve Withdrawal";
+
 alert(e.message);
 
 }
 
 }
+
 
 /* REJECT WITHDRAWAL */
 
@@ -1342,8 +1893,7 @@ async function rejectWithdrawal(id,button){
 
 if(!isAdmin)return;
 
-if(!confirm("Reject this withdrawal request?"))
-return;
+if(!confirm("Reject this withdrawal request?"))return;
 
 button.disabled=true;
 
@@ -1355,13 +1905,20 @@ await db.runTransaction(async tx=>{
 
 const snap=await tx.get(ref);
 
-if(!snap.exists||snap.data().status!=="pending")
+if(!snap.exists||snap.data().status!=="pending"){
+
 throw new Error("Already processed.");
 
+}
+
 tx.update(ref,{
+
 status:"rejected",
+
 reviewedAt:firebase.firestore.FieldValue.serverTimestamp(),
+
 reviewedBy:currentUser.uid
+
 });
 
 });
@@ -1369,11 +1926,13 @@ reviewedBy:currentUser.uid
 alert("Withdrawal request rejected.");
 
 await loadWithdrawalAdmin();
+
 await loadWithdrawalHistory();
 
 }catch(e){
 
 button.disabled=false;
+
 alert(e.message);
 
 }
@@ -1381,5 +1940,6 @@ alert(e.message);
 }
 
 </script>
+
 </body>
 </html>
