@@ -27,28 +27,11 @@ button.danger{background:#b83232;color:white}
 .item{background:#1a3024;padding:12px;border-radius:9px;margin:9px 0;overflow-wrap:anywhere}
 h3{color:#20c978}
 .notice{background:#263b30;padding:12px;border-radius:8px;color:#ffe49a;font-size:13px}
-.receipt{width:100%;max-height:300px;object-fit:contain;background:#07110d;border-radius:8px;margin-top:8px}
 hr{border:1px solid #244d38}
 .locked{background:#342d18;border:1px solid #a68b37;padding:15px;border-radius:10px;margin:10px 0}
 .status-pending{color:#ffe49a;font-weight:bold}
 .status-approved{color:#20c978;font-weight:bold}
 .status-rejected{color:#ff7777;font-weight:bold}
-
-/* HTML IMAGE VIEWER */
-#imageViewer{
-position:fixed;inset:0;background:rgba(0,0,0,.96);
-z-index:99999;display:none;flex-direction:column;
-align-items:center;justify-content:center;padding:12px;
-}
-#imageViewer.show{display:flex}
-.viewerHeader{width:100%;max-width:800px;display:flex;gap:10px;align-items:center}
-.viewerHeader button{width:auto;flex:1}
-#viewerImage{
-max-width:100%;max-height:78vh;object-fit:contain;
-border-radius:8px;margin-top:12px;
-}
-.viewerControls{width:100%;max-width:800px;display:flex;gap:8px}
-.viewerControls button{flex:1}
 </style>
 </head>
 
@@ -132,12 +115,7 @@ Your tasks will remain locked until your payment is verified.
 <input id="DepositAmount" type="number" min="1" placeholder="Amount deposited (₦)">
 
 <label class="small">Sender Name</label>
-<input
-id="SenderName"
-type="text"
-placeholder="Enter sender's full name"
-required
->
+<input id="SenderName" type="text" placeholder="Enter sender's full name" required>
 
 <button id="DepositSubmitButton" onclick="submitDeposit()">Submit Deposit for Approval</button>
 <p id="DepositMessage" class="small"></p>
@@ -177,21 +155,26 @@ required
 <div id="adminPage" class="card hidden">
 <h3>Admin Dashboard</h3>
 <p class="small">Admin access is checked using your Firebase UID.</p>
+
 <hr>
 <h3>Post New Task</h3>
 <input id="newTaskTitle" placeholder="Task title">
 <textarea id="newTaskDescription" placeholder="Task instructions"></textarea>
 <input id="newTaskReward" type="number" min="0" placeholder="Task reward (₦)">
 <button onclick="postTask()">Publish Task</button>
+
 <hr>
 <h3>Manage Tasks</h3>
 <div id="adminTasks"></div>
+
 <hr>
 <h3>Submitted Task Proofs</h3>
 <div id="submissionList"></div>
+
 <hr>
 <h3>Deposits to Review</h3>
 <div id="depositAdminList"></div>
+
 <hr>
 <h3>Withdrawal Requests</h3>
 <div id="withdrawalAdminList"></div>
@@ -200,26 +183,14 @@ required
 </section>
 </main>
 
-<!-- HTML IMAGE VIEWER -->
-<div id="imageViewer">
-<div class="viewerHeader">
-<strong style="color:#20c978">PJ IMAGE VIEWER</strong>
-<button class="danger" onclick="closeImageViewer()">CLOSE ✕</button>
-</div>
-<img id="viewerImage" alt="Uploaded screenshot">
-<div class="viewerControls">
-<button onclick="zoomImage(1.25)">ZOOM IN +</button>
-<button class="secondary" onclick="zoomImage(0.8)">ZOOM OUT −</button>
-<button class="secondary" onclick="resetZoom()">RESET</button>
-</div>
-</div>
-
 <!-- FIREBASE: NO STORAGE SCRIPT -->
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
+
 const firebaseConfig={
 apiKey:"AIzaSyC6O2RSO27tCfq4F8qkyijAdgsIqZrlmVk",
 authDomain:"pj-earning-hub.firebaseapp.com",
@@ -244,117 +215,6 @@ let myProfile={};
 function el(id){return document.getElementById(id)}
 function message(id,text){el(id).textContent=text}
 function money(value){return Number(value||0).toLocaleString("en-NG")}
-
-/* IMAGE VIEWER - FOR TASK SCREENSHOTS */
-
-let viewerScale=1;
-
-function openImageViewer(imageData){
-if(!imageData)return alert("Screenshot is not available.");
-el("viewerImage").src=imageData;
-viewerScale=1;
-el("viewerImage").style.transform="scale(1)";
-el("imageViewer").classList.add("show");
-}
-
-function closeImageViewer(){
-el("imageViewer").classList.remove("show");
-el("viewerImage").src="";
-}
-
-function zoomImage(amount){
-viewerScale=Math.max(.5,Math.min(4,viewerScale*amount));
-el("viewerImage").style.transform="scale("+viewerScale+")";
-}
-
-function resetZoom(){
-viewerScale=1;
-el("viewerImage").style.transform="scale(1)";
-}
-
-el("imageViewer").addEventListener("click",e=>{
-if(e.target===el("imageViewer"))closeImageViewer();
-});
-
-document.addEventListener("keydown",e=>{
-if(e.key==="Escape")closeImageViewer();
-});
-
-/* IMAGE PREPARATION - FOR TASK SCREENSHOTS ONLY */
-
-function prepareImage(file){
-return new Promise((resolve,reject)=>{
-if(!file||!file.type.startsWith("image/")){
-reject(new Error("Select a valid image."));
-return;
-}
-
-const reader=new FileReader();
-
-reader.onerror=()=>reject(new Error("Could not read image."));
-
-reader.onload=()=>{
-const img=new Image();
-
-img.onerror=()=>reject(new Error("Invalid image file."));
-
-img.onload=()=>{
-try{
-const canvas=document.createElement("canvas");
-const ctx=canvas.getContext("2d");
-
-let width=img.width;
-let height=img.height;
-
-const maxDimension=1400;
-
-if(width>maxDimension||height>maxDimension){
-const ratio=Math.min(maxDimension/width,maxDimension/height);
-width=Math.round(width*ratio);
-height=Math.round(height*ratio);
-}
-
-canvas.width=width;
-canvas.height=height;
-ctx.drawImage(img,0,0,width,height);
-
-let quality=.75;
-let result=canvas.toDataURL("image/jpeg",quality);
-
-while(result.length>850000&&quality>.35){
-quality-=.08;
-result=canvas.toDataURL("image/jpeg",quality);
-}
-
-if(result.length>850000){
-const smallerCanvas=document.createElement("canvas");
-const smallerCtx=smallerCanvas.getContext("2d");
-
-const ratio=.7;
-smallerCanvas.width=Math.round(width*ratio);
-smallerCanvas.height=Math.round(height*ratio);
-
-smallerCtx.drawImage(img,0,0,smallerCanvas.width,smallerCanvas.height);
-
-result=smallerCanvas.toDataURL("image/jpeg",.45);
-}
-
-if(result.length>850000){
-reject(new Error("This image is too large. Please select a smaller screenshot."));
-return;
-}
-
-resolve(result);
-
-}catch(e){reject(e)}
-};
-
-img.src=reader.result;
-};
-
-reader.readAsDataURL(file);
-});
-}
 
 /* AUTHENTICATION */
 
@@ -393,6 +253,7 @@ createdAt:firebase.firestore.FieldValue.serverTimestamp()
 });
 
 message("authMessage","Account created successfully. Make a deposit to unlock tasks.");
+
 }catch(e){
 message("authMessage",e.message);
 }finally{
@@ -539,7 +400,7 @@ loadWithdrawalHistory();
 if(name==="admin")loadAdmin();
 }
 
-/* TASKS */
+/* TASKS - TEXT PROOF ONLY */
 
 async function loadTasks(){
 const box=el("taskList");
@@ -590,23 +451,23 @@ reward.textContent="Reward: ₦"+money(t.reward);
 const proof=document.createElement("textarea");
 proof.placeholder="Enter task proof";
 
-const screenshot=document.createElement("input");
-screenshot.type="file";
-screenshot.accept="image/*";
-
 const btn=document.createElement("button");
 btn.textContent="Submit Task";
-btn.onclick=()=>submitTask(doc.id,proof.value,screenshot,btn);
+btn.onclick=()=>submitTask(doc.id,proof.value,btn);
 
-div.append(title,desc,reward,proof,screenshot,btn);
+div.append(title,desc,reward,proof,btn);
 box.appendChild(div);
 }
-}catch(e){box.textContent=e.message}
+
+}catch(e){
+box.textContent=e.message;
+}
 }
 
-/* SUBMIT TASK */
+/* SUBMIT TASK - NO IMAGE UPLOAD */
 
-async function submitTask(taskId,proof,fileInput,button){
+async function submitTask(taskId,proof,button){
+
 if(!isAdmin&&myProfile.taskAccess!==true){
 alert("Your tasks are locked. Deposit and wait for admin approval.");
 return;
@@ -619,25 +480,18 @@ button.disabled=true;
 button.textContent="Submitting...";
 
 try{
-let imageData="";
-
-const file=fileInput.files[0];
-
-if(file){
-imageData=await prepareImage(file);
-}
 
 await db.collection("submissions").add({
 taskId,
 userId:currentUser.uid,
 email:currentUser.email||"",
 proof:proof.trim(),
-imageData,
 status:"pending",
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
 });
 
 alert("Task proof submitted for admin review.");
+
 await loadHistory();
 
 button.textContent="Submitted";
@@ -672,7 +526,10 @@ box.appendChild(div);
 });
 
 if(!box.children.length)box.textContent="No activity yet.";
-}catch(e){box.textContent=e.message}
+
+}catch(e){
+box.textContent=e.message;
+}
 }
 
 /* ADMIN POST TASK */
@@ -699,9 +556,13 @@ el("newTaskDescription").value="";
 el("newTaskReward").value="";
 
 alert("Task published.");
+
 await loadTasks();
 await loadAdmin();
-}catch(e){alert(e.message)}
+
+}catch(e){
+alert(e.message);
+}
 }
 
 /* ADMIN DASHBOARD */
@@ -716,6 +577,7 @@ taskBox.textContent="Loading...";
 submissionBox.textContent="Loading...";
 
 try{
+
 const tasks=await db.collection("tasks").get();
 taskBox.innerHTML="";
 
@@ -744,7 +606,7 @@ div.appendChild(btn);
 taskBox.appendChild(div);
 });
 
-/* ALL TASK SUBMISSIONS */
+/* ALL TASK SUBMISSIONS - TEXT ONLY */
 
 const subs=await db.collection("submissions").get();
 submissionBox.innerHTML="";
@@ -765,14 +627,8 @@ info.textContent=
 
 div.appendChild(info);
 
-if(s.imageData){
-const view=document.createElement("button");
-view.textContent="View Task Screenshot";
-view.onclick=()=>openImageViewer(s.imageData);
-div.appendChild(view);
-}
-
 if(s.status==="pending"){
+
 const approve=document.createElement("button");
 approve.textContent="Approve Task";
 approve.onclick=()=>approveProof(d.id,s,approve);
@@ -783,11 +639,14 @@ reject.className="danger";
 reject.onclick=()=>rejectProof(d.id,reject);
 
 div.append(approve,reject);
+
 }else{
+
 const status=document.createElement("p");
 status.className="green";
 status.textContent=s.status==="approved"?"APPROVED":"REJECTED";
 div.appendChild(status);
+
 }
 
 submissionBox.appendChild(div);
@@ -811,11 +670,13 @@ button.disabled=true;
 button.textContent="Processing...";
 
 try{
+
 const submissionRef=db.collection("submissions").doc(id);
 const taskRef=db.collection("tasks").doc(s.taskId);
 const userRef=db.collection("users").doc(s.userId);
 
 await db.runTransaction(async tx=>{
+
 const sub=await tx.get(submissionRef);
 
 if(!sub.exists||sub.data().status!=="pending")
@@ -836,6 +697,7 @@ approvedAt:firebase.firestore.FieldValue.serverTimestamp()
 });
 
 tx.update(userRef,{demoPoints:balance+reward});
+
 });
 
 button.textContent="APPROVED";
@@ -861,6 +723,7 @@ if(!confirm("Reject this task proof?"))return;
 button.disabled=true;
 
 try{
+
 const ref=db.collection("submissions").doc(id);
 
 await db.runTransaction(async tx=>{
@@ -896,12 +759,15 @@ alert("Account number copied.");
 }else{
 window.prompt("Copy account number:",account);
 }
-}catch(e){window.prompt("Copy account number:",account)}
+}catch(e){
+window.prompt("Copy account number:",account);
+}
 }
 
 /* SUBMIT DEPOSIT - SENDER NAME ONLY */
 
 async function submitDeposit(){
+
 if(!currentUser){
 alert("Please log in first.");
 return;
@@ -949,6 +815,7 @@ console.error("Deposit submission error:",e);
 
 message("DepositMessage","Submission failed: "+e.message);
 alert("Deposit submission failed: "+e.message);
+
 }finally{
 btn.disabled=false;
 btn.textContent="Submit Deposit for Approval";
@@ -964,6 +831,7 @@ const box=el("DepositHistory");
 box.textContent="Loading...";
 
 try{
+
 const snap=await db.collection("deposits")
 .where("userId","==",currentUser.uid).get();
 
@@ -1006,6 +874,7 @@ const box=el("depositAdminList");
 box.textContent="Loading deposits...";
 
 try{
+
 const snap=await db.collection("deposits")
 .where("status","==","pending").get();
 
@@ -1083,9 +952,11 @@ button.disabled=true;
 button.textContent="Processing...";
 
 try{
+
 const depositRef=db.collection("deposits").doc(id);
 
 await db.runTransaction(async tx=>{
+
 const snap=await tx.get(depositRef);
 
 if(!snap.exists||snap.data().status!=="pending")
@@ -1109,6 +980,7 @@ status:status,
 reviewedAt:firebase.firestore.FieldValue.serverTimestamp(),
 reviewedBy:currentUser.uid
 });
+
 });
 
 alert(status==="approved"?
@@ -1154,13 +1026,16 @@ button.disabled=true;
 button.textContent="Submitting...";
 
 try{
+
 const userRef=db.collection("users").doc(currentUser.uid);
 const snap=await userRef.get();
 
 if(!snap.exists)throw new Error("User account not found.");
 
 const balance=Number(snap.data().demoPoints)||0;
-if(amount>balance)throw new Error("Insufficient balance.");
+
+if(amount>balance)
+throw new Error("Insufficient balance.");
 
 await db.collection("withdrawals").add({
 userId:currentUser.uid,
@@ -1179,8 +1054,9 @@ el("withdrawAccountNumber").value="";
 
 await loadWithdrawalHistory();
 
-}catch(e){alert(e.message)}
-finally{
+}catch(e){
+alert(e.message);
+}finally{
 button.disabled=false;
 button.textContent="Submit Withdrawal Request";
 }
@@ -1195,6 +1071,7 @@ const box=el("withdrawHistory");
 box.textContent="Loading...";
 
 try{
+
 const snap=await db.collection("withdrawals")
 .where("userId","==",currentUser.uid).get();
 
@@ -1213,9 +1090,12 @@ div.textContent=
 box.appendChild(div);
 });
 
-if(!box.children.length)box.textContent="No withdrawal requests yet.";
+if(!box.children.length)
+box.textContent="No withdrawal requests yet.";
 
-}catch(e){box.textContent=e.message}
+}catch(e){
+box.textContent=e.message;
+}
 }
 
 /* ADMIN WITHDRAWAL REVIEW */
@@ -1227,6 +1107,7 @@ const box=el("withdrawalAdminList");
 box.textContent="Loading...";
 
 try{
+
 const snap=await db.collection("withdrawals")
 .where("status","==","pending").get();
 
@@ -1267,7 +1148,9 @@ div.append(info,warning,approve,reject);
 box.appendChild(div);
 });
 
-}catch(e){box.textContent=e.message}
+}catch(e){
+box.textContent=e.message;
+}
 }
 
 /* APPROVE WITHDRAWAL */
@@ -1281,9 +1164,11 @@ button.disabled=true;
 button.textContent="Processing...";
 
 try{
+
 const ref=db.collection("withdrawals").doc(id);
 
 await db.runTransaction(async tx=>{
+
 const w=await tx.get(ref);
 
 if(!w.exists||w.data().status!=="pending")
@@ -1307,6 +1192,7 @@ status:"approved",
 reviewedAt:firebase.firestore.FieldValue.serverTimestamp(),
 reviewedBy:currentUser.uid
 });
+
 });
 
 alert("Withdrawal approved. Balance deducted once.");
@@ -1331,9 +1217,11 @@ if(!confirm("Reject this withdrawal request?"))return;
 button.disabled=true;
 
 try{
+
 const ref=db.collection("withdrawals").doc(id);
 
 await db.runTransaction(async tx=>{
+
 const snap=await tx.get(ref);
 
 if(!snap.exists||snap.data().status!=="pending")
@@ -1344,6 +1232,7 @@ status:"rejected",
 reviewedAt:firebase.firestore.FieldValue.serverTimestamp(),
 reviewedBy:currentUser.uid
 });
+
 });
 
 alert("Withdrawal request rejected.");
