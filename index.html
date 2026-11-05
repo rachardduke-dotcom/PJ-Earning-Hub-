@@ -114,7 +114,7 @@ border-radius:8px;margin-top:12px;
 <h3>Deposit / Unlock Tasks</h3>
 
 <div class="notice">
-You must submit your deposit payment proof and wait for admin approval before accessing available tasks.
+You must submit your deposit details and wait for admin approval before accessing available tasks.
 Your tasks will remain locked until your payment is verified.
 </div>
 
@@ -128,9 +128,17 @@ Your tasks will remain locked until your payment is verified.
 
 <hr>
 <h3>Submit Deposit</h3>
+
 <input id="DepositAmount" type="number" min="1" placeholder="Amount deposited (₦)">
-<label class="small">Upload payment screenshot</label>
-<input id="DepositScreenshot" type="file" accept="image/*">
+
+<label class="small">Sender Name</label>
+<input
+id="SenderName"
+type="text"
+placeholder="Enter sender's full name"
+required
+>
+
 <button id="DepositSubmitButton" onclick="submitDeposit()">Submit Deposit for Approval</button>
 <p id="DepositMessage" class="small"></p>
 
@@ -182,7 +190,7 @@ Your tasks will remain locked until your payment is verified.
 <h3>Submitted Task Proofs</h3>
 <div id="submissionList"></div>
 <hr>
-<h3>Deposit Proofs to Review</h3>
+<h3>Deposits to Review</h3>
 <div id="depositAdminList"></div>
 <hr>
 <h3>Withdrawal Requests</h3>
@@ -237,7 +245,7 @@ function el(id){return document.getElementById(id)}
 function message(id,text){el(id).textContent=text}
 function money(value){return Number(value||0).toLocaleString("en-NG")}
 
-/* IMAGE VIEWER */
+/* IMAGE VIEWER - FOR TASK SCREENSHOTS */
 
 let viewerScale=1;
 
@@ -272,9 +280,7 @@ document.addEventListener("keydown",e=>{
 if(e.key==="Escape")closeImageViewer();
 });
 
-/* AUTOMATIC IMAGE PREPARATION
-   No compression message or option is shown to users.
-*/
+/* IMAGE PREPARATION - FOR TASK SCREENSHOTS ONLY */
 
 function prepareImage(file){
 return new Promise((resolve,reject)=>{
@@ -286,6 +292,7 @@ return;
 const reader=new FileReader();
 
 reader.onerror=()=>reject(new Error("Could not read image."));
+
 reader.onload=()=>{
 const img=new Image();
 
@@ -892,7 +899,7 @@ window.prompt("Copy account number:",account);
 }catch(e){window.prompt("Copy account number:",account)}
 }
 
-/* SUBMIT DEPOSIT - NO STORAGE */
+/* SUBMIT DEPOSIT - SENDER NAME ONLY */
 
 async function submitDeposit(){
 if(!currentUser){
@@ -901,17 +908,14 @@ return;
 }
 
 const amount=Number(el("DepositAmount").value);
-const file=el("DepositScreenshot").files[0];
+const senderName=el("SenderName").value.trim();
 const btn=el("DepositSubmitButton");
 
 if(!Number.isFinite(amount)||amount<=0)
 return alert("Enter the amount deposited.");
 
-if(!file)
-return alert("Please select your payment screenshot.");
-
-if(!file.type.startsWith("image/"))
-return alert("Select a valid image file.");
+if(!senderName)
+return alert("Enter the sender's name.");
 
 if(btn.disabled)return;
 
@@ -919,24 +923,13 @@ btn.disabled=true;
 btn.textContent="Submitting...";
 message("DepositMessage","Submitting your deposit...");
 
-let depositRef=null;
-
 try{
-/* Prepare screenshot automatically */
 
-const imageData=await prepareImage(file);
-
-const id=db.collection("deposits").doc().id;
-depositRef=db.collection("deposits").doc(id);
-
-/* Save screenshot directly in Firestore */
-
-await depositRef.set({
+await db.collection("deposits").add({
 userId:currentUser.uid,
 email:currentUser.email||"",
 amount,
-imageData,
-fileName:file.name,
+senderName,
 status:"pending",
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
 });
@@ -947,7 +940,7 @@ message(
 );
 
 el("DepositAmount").value="";
-el("DepositScreenshot").value="";
+el("SenderName").value="";
 
 await loadDepositHistory();
 
@@ -982,8 +975,10 @@ const div=document.createElement("div");
 div.className="item";
 
 const info=document.createElement("p");
+
 info.textContent=
 "Amount: ₦"+money(p.amount)+
+" | Sender: "+(p.senderName||"Not provided")+
 " | Status: "+String(p.status||"pending").toUpperCase();
 
 if(p.status==="pending")info.className="status-pending";
@@ -991,32 +986,24 @@ else if(p.status==="approved")info.className="status-approved";
 else if(p.status==="rejected")info.className="status-rejected";
 
 div.appendChild(info);
-
-if(p.imageData){
-const view=document.createElement("button");
-view.textContent="View My Screenshot";
-view.className="secondary";
-view.onclick=()=>openImageViewer(p.imageData);
-div.appendChild(view);
-}
-
 box.appendChild(div);
 });
 
-if(!box.children.length)box.textContent="No deposit submissions yet.";
+if(!box.children.length)
+box.textContent="No deposit submissions yet.";
 
 }catch(e){
 box.textContent="Could not load deposit history: "+e.message;
 }
 }
 
-/* ADMIN DEPOSIT REVIEW */
+/* ADMIN DEPOSIT REVIEW - SENDER NAME */
 
 async function loadDepositAdmin(){
 if(!isAdmin)return;
 
 const box=el("depositAdminList");
-box.textContent="Loading deposit proofs...";
+box.textContent="Loading deposits...";
 
 try{
 const snap=await db.collection("deposits")
@@ -1025,7 +1012,7 @@ const snap=await db.collection("deposits")
 box.innerHTML="";
 
 if(snap.empty){
-box.textContent="No pending deposit proofs.";
+box.textContent="No pending deposits.";
 return;
 }
 
@@ -1042,29 +1029,12 @@ info.textContent=
 "User: "+(p.email||p.userId)+
 " | Amount: ₦"+money(p.amount);
 
-const fileInfo=document.createElement("p");
-fileInfo.className="small";
-fileInfo.textContent="Screenshot: "+(p.fileName||"Payment receipt");
+const sender=document.createElement("p");
+sender.textContent="Sender Name: "+(p.senderName||"Not provided");
 
 const status=document.createElement("p");
 status.className="status-pending";
 status.textContent="Status: PENDING";
-
-div.append(heading,info,fileInfo,status);
-
-/* ADMIN OPENS IMAGE IN HTML VIEWER */
-
-if(p.imageData){
-const view=document.createElement("button");
-view.textContent="VIEW DEPOSIT SCREENSHOT";
-view.onclick=()=>openImageViewer(p.imageData);
-div.appendChild(view);
-}else{
-const noImage=document.createElement("p");
-noImage.className="small";
-noImage.textContent="Screenshot is not available.";
-div.appendChild(noImage);
-}
 
 const warning=document.createElement("p");
 warning.className="small";
@@ -1079,7 +1049,16 @@ reject.className="danger";
 reject.textContent="Reject Deposit";
 reject.onclick=()=>reviewDeposit(d.id,"rejected",reject);
 
-div.append(warning,approve,reject);
+div.append(
+heading,
+info,
+sender,
+status,
+warning,
+approve,
+reject
+);
+
 box.appendChild(div);
 });
 
